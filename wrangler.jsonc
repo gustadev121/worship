@@ -1,0 +1,25 @@
+{
+  // Cloudflare Workers deployment config. Production secrets come from
+  // `wrangler secret put` / dashboard vars, never committed here.
+  "name": "worshipflow",
+  "compatibility_date": "2026-10-26",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      // Placeholder: replace with `wrangler d1 create worshipflow` output.
+      "database_name": "worshipflow",
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "vars": {
+    "JWT_SECRET": "change-me-in-production"
+  },
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"]
+  }
+}

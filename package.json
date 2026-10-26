@@ -1,0 +1,41 @@
+{
+  "name": "worshipflow",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "build:vinext": "vite build",
+    "check": "biome check .",
+    "check:arch": "bun scripts/check-architecture.ts",
+    "dev:vinext": "vite dev",
+    "seed": "bun scripts/seed.ts",
+    "seed:d1": "bun scripts/seed.ts && bun scripts/dump-seed-sql.ts && wrangler d1 execute worshipflow --local --file=.wrangler/seed.sql",
+    "start:vinext": "vinext start",
+    "test": "bun test",
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+  },
+  "dependencies": {
+    "@vinext/cloudflare": "^1.2.1",
+    "drizzle-orm": "^0.45.4",
+    "jose": "^6.2.13",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "sql.js": "^1.15.1",
+    "vinext": "^1.3.1",
+    "vite": "^8.3.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.3",
+    "@cloudflare/vite-plugin": "1",
+    "@cloudflare/workers-types": "^5.20261025.1",
+    "@types/bun": "^1.4.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-rsc": "^0.5.38",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.152.0"
+  }
+}

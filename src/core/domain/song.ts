@@ -19,14 +19,16 @@ export function createSectionTimestamp(input: {
     label.trim().length === 0 ||
     label.length > 100
   ) {
-    throw new ValidationError("Section label must be 1-100 characters");
+    throw new ValidationError(
+      "La etiqueta de la sección debe tener 1-100 caracteres",
+    );
   }
   if (
     typeof startSeconds !== "number" ||
     !Number.isFinite(startSeconds) ||
     startSeconds < 0
   ) {
-    throw new ValidationError("startSeconds must be a number >= 0");
+    throw new ValidationError("startSeconds debe ser un número >= 0");
   }
   if (endSeconds === undefined) {
     return { label, startSeconds };
@@ -36,7 +38,7 @@ export function createSectionTimestamp(input: {
     !Number.isFinite(endSeconds) ||
     endSeconds <= startSeconds
   ) {
-    throw new ValidationError("endSeconds must be > startSeconds");
+    throw new ValidationError("endSeconds debe ser > startSeconds");
   }
   return { label, startSeconds, endSeconds };
 }
@@ -46,11 +48,13 @@ export function createSectionTimestamps(value: unknown): SectionTimestamp[] {
     return [];
   }
   if (!Array.isArray(value)) {
-    throw new ValidationError("sectionTimestamps must be an array");
+    throw new ValidationError("sectionTimestamps debe ser un arreglo");
   }
   return value.map((entry) => {
     if (typeof entry !== "object" || entry === null) {
-      throw new ValidationError("sectionTimestamps entries must be objects");
+      throw new ValidationError(
+        "Las entradas de sectionTimestamps deben ser objetos",
+      );
     }
     const record = entry as {
       label: unknown;
@@ -71,7 +75,7 @@ export function createBpm(value: unknown): number | undefined {
     value < 30 ||
     value > 300
   ) {
-    throw new ValidationError("BPM must be an integer 30-300");
+    throw new ValidationError("El BPM debe ser un entero 30-300");
   }
   return value;
 }
@@ -81,7 +85,7 @@ export function createTimeSignature(value: unknown): string | null {
     return null;
   }
   if (typeof value !== "string" || !/^\d{1,2}\/\d{1,2}$/.test(value)) {
-    throw new ValidationError('timeSignature must look like "4/4"');
+    throw new ValidationError('El compás debe tener forma "4/4"');
   }
   return value;
 }
@@ -107,7 +111,9 @@ export function createSongTitle(value: unknown): string {
     value.trim().length === 0 ||
     value.length > 200
   ) {
-    throw new ValidationError("Song title must be 1-200 characters");
+    throw new ValidationError(
+      "El título de la canción debe tener 1-200 caracteres",
+    );
   }
   return value;
 }
@@ -118,7 +124,7 @@ export function createArtist(value: unknown): string {
     value.trim().length === 0 ||
     value.length > 200
   ) {
-    throw new ValidationError("Artist must be 1-200 characters");
+    throw new ValidationError("El artista debe tener 1-200 caracteres");
   }
   return value;
 }
@@ -138,7 +144,7 @@ export function createSong(input: {
   updatedAt?: unknown;
 }): Song {
   if (typeof input.id !== "string" || input.id.length === 0) {
-    throw new ValidationError("Song id is required");
+    throw new ValidationError("El id de la canción es requerido");
   }
   const now = new Date().toISOString();
   return {
@@ -170,7 +176,7 @@ export function createSong(input: {
 
 function requireLyrics(value: unknown): string {
   if (typeof value !== "string") {
-    throw new ValidationError("lyricsAndChords must be a string");
+    throw new ValidationError("lyricsAndChords debe ser un texto");
   }
   return value;
 }

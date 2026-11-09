@@ -2,7 +2,7 @@ import { setSongLabelsSchema } from "@/core/application/schemas";
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 interface SongLabelParams {
   params: Promise<{ id: string }>;
@@ -39,7 +39,10 @@ export async function PUT(
     const body: unknown = await req.json();
     const parsed = setSongLabelsSchema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: "Invalid labels input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de etiqueta inválidos" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     await container.setSongLabels.execute({
@@ -47,7 +50,6 @@ export async function PUT(
       songId: id,
       labelIds: parsed.data.labelIds,
     });
-    persist(container);
     return Response.json({ ok: true });
   } catch (err) {
     return errorResponse(err);

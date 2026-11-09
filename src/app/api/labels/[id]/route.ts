@@ -2,7 +2,7 @@ import { updateLabelSchema } from "@/core/application/schemas";
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 interface LabelParams {
   params: Promise<{ id: string }>;
@@ -21,7 +21,10 @@ export async function PATCH(
     const body: unknown = await req.json();
     const parsed = updateLabelSchema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: "Invalid label input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de etiqueta inválidos" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     const { label } = await container.updateLabel.execute({
@@ -29,7 +32,6 @@ export async function PATCH(
       id,
       ...parsed.data,
     });
-    persist(container);
     return Response.json({ label });
   } catch (err) {
     return errorResponse(err);
@@ -48,7 +50,6 @@ export async function DELETE(
     const { id } = await params;
     const container = await getContainer(await getRequestEnv());
     await container.deleteLabel.execute({ actor: session, id });
-    persist(container);
     return Response.json({ ok: true });
   } catch (err) {
     return errorResponse(err);

@@ -1,28 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
 import { sql } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle as drizzleD1 } from "drizzle-orm/d1";
-import {
-  drizzle as drizzleSqlJs,
-  type SQLJsDatabase,
-} from "drizzle-orm/sql-js";
-// @ts-expect-error sql.js ships without type declarations; loaded via WASM at runtime
-import initSqlJs from "sql.js";
 import { schema } from "./schema";
 
-export type Db =
-  | SQLJsDatabase<typeof schema>
-  | DrizzleD1Database<typeof schema>;
+export type Db = DrizzleD1Database<typeof schema>;
 
-export interface DbEnv {
-  DB?: Parameters<typeof drizzleD1>[0];
-  SQLITE_FILE?: string;
-}
-
-export interface DatabaseHandle {
-  db: Db;
-  save: () => void;
-}
+export type D1Binding = Parameters<typeof drizzleD1>[0];
 
 // SQL-first migration, inlined at build time so request handlers never read
 // it from disk (no filesystem under workerd).
@@ -34,30 +16,39 @@ function migrationStatements(): string[] {
     .filter((s) => s.length > 0);
 }
 
-export async function getDb(env: DbEnv): Promise<DatabaseHandle> {
-  if (env.DB) {
-    const db = drizzleD1(env.DB, { schema });
-    await db.run(sql`PRAGMA foreign_keys = ON`);
-    for (const stmt of migrationStatements()) {
-      await db.run(sql.raw(stmt));
-    }
-    return { db, save: () => {} };
-  }
-  const file = resolve(env.SQLITE_FILE ?? "./data/worshipflow.db");
-  mkdirSync(dirname(file), { recursive: true });
-  const SQL = await initSqlJs();
-  const raw = existsSync(file)
-    ? new SQL.Database(readFileSync(file))
-    : new SQL.Database();
-  raw.exec("PRAGMA foreign_keys = ON;");
+/**
+ * Single local database: Cloudflare D1. In `dev` the worker runtime provides
+ * the `DB` binding backed by `.wrangler/state` (miniflare); `seed` writes to
+ * that same database. There is no sqlite fallback — one database, no drift.
+ */
+export async function getDb(binding: D1Binding): Promise<Db> {
+  const db = drizzleD1(binding, { schema });
+  await db.run(sql`PRAGMA foreign_keys = ON`);
   for (const stmt of migrationStatements()) {
-    raw.exec(`${stmt};`);
+    await db.run(sql.raw(stmt));
   }
-  const db = drizzleSqlJs(raw, { schema });
-  return {
-    db,
-    save: () => {
-      writeFileSync(file, Buffer.from(raw.export()));
-    },
-  };
+  return db;
+}
+
+/**
+ * D1 via drizzle rejects with DrizzleQueryError (generic message); the real
+ * UNIQUE text lives in `cause` (D1_ERROR → root sqlite error). Walk the
+ * chain so repositories map conflicts to ConflictError on every backend.
+ */
+export function isUniqueViolation(error: unknown): boolean {
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current !== null && current !== undefined && !seen.has(current)) {
+    seen.add(current);
+    const message =
+      current instanceof Error ? current.message : String(current);
+    if (/UNIQUE constraint failed|unique/i.test(message)) {
+      return true;
+    }
+    current =
+      current instanceof Error
+        ? (current as Error & { cause?: unknown }).cause
+        : undefined;
+  }
+  return false;
 }

@@ -13,8 +13,8 @@ function workerVars(): Record<string, string | undefined> {
 
 /**
  * Request-scoped env: Worker bindings + vars when running under Cloudflare
- * Workers (`cloudflare:workers`), merged over local process/Bun env. Local
- * dev without the worker runtime falls back to sql.js via SQLITE_FILE.
+ * Workers (`cloudflare:workers`), merged over local process/Bun env. The DB
+ * binding is always D1 (local D1 en dev, D1 real en prod): una sola base.
  * The ONLY module importing `cloudflare:workers`.
  */
 export async function getRequestEnv(): Promise<AppEnv> {
@@ -25,7 +25,7 @@ export async function getRequestEnv(): Promise<AppEnv> {
     source = undefined;
   }
   const base = resolveEnv(source);
-  const db = (workerEnv as Record<string, unknown>)["DB"];
+  const db = (workerEnv as Record<string, unknown>).DB;
   if (db !== undefined) {
     return { ...base, DB: db };
   }

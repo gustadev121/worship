@@ -2,7 +2,7 @@ import { eq, or } from "drizzle-orm";
 import type { IUserRepository } from "@/core/application/ports";
 import { ConflictError } from "@/core/domain/errors";
 import type { User } from "@/core/domain/user";
-import type { Db } from "../db/client";
+import { type Db, isUniqueViolation } from "../db/client";
 import { users } from "../db/schema";
 
 interface UserRow {
@@ -25,11 +25,6 @@ function toDomain(row: UserRow): User {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /UNIQUE constraint failed|unique/i.test(message);
 }
 
 export class DrizzleUserRepository implements IUserRepository {

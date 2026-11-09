@@ -12,7 +12,7 @@ export default async function NewSongPage() {
   }
   return (
     <section>
-      <h1>New song</h1>
+      <h1>Nueva canción</h1>
       <SongForm mode="create" />
     </section>
   );

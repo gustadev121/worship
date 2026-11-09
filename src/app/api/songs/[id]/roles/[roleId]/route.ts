@@ -3,7 +3,7 @@ import { updateRoleAssignmentSchema } from "@/core/application/schemas";
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 interface RoleItemParams {
   params: Promise<{ id: string; roleId: string }>;
@@ -29,7 +29,7 @@ export async function PATCH(
       const parsed = instrumentNameSchema.safeParse(body);
       if (!parsed.success) {
         return Response.json(
-          { error: "Invalid instrument name" },
+          { error: "Nombre de instrumento inválido" },
           { status: 400 },
         );
       }
@@ -38,19 +38,20 @@ export async function PATCH(
         id: roleId,
         instrumentName: parsed.data.instrumentName,
       });
-      persist(container);
       return Response.json({ assignment });
     }
     const parsed = updateRoleAssignmentSchema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: "Invalid role input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de voz inválidos" },
+        { status: 400 },
+      );
     }
     const { assignment } = await container.updateRoleAssignment.execute({
       actor: session,
       id: roleId,
       ...parsed.data,
     });
-    persist(container);
     return Response.json({ assignment });
   } catch (err) {
     return errorResponse(err);
@@ -72,7 +73,6 @@ export async function DELETE(
       actor: session,
       id: roleId,
     });
-    persist(container);
     return Response.json({ ok: true });
   } catch (err) {
     return errorResponse(err);

@@ -6,7 +6,7 @@ import {
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 export async function GET(req: Request): Promise<Response> {
   const session = await getSession();
@@ -23,7 +23,7 @@ export async function GET(req: Request): Promise<Response> {
       roleType: url.searchParams.get("roleType") ?? undefined,
     });
     if (!parsed.success) {
-      return Response.json({ error: "Invalid query" }, { status: 400 });
+      return Response.json({ error: "Búsqueda inválida" }, { status: 400 });
     }
     const filter: SongFilter = {};
     if (parsed.data.q !== undefined) {
@@ -61,14 +61,16 @@ export async function POST(req: Request): Promise<Response> {
     const body: unknown = await req.json();
     const parsed = createSongSchema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: "Invalid song input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de canción inválidos" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     const { song } = await container.createSong.execute({
       actor: session,
       ...parsed.data,
     });
-    persist(container);
     return Response.json({ song }, { status: 201 });
   } catch (err) {
     return errorResponse(err);

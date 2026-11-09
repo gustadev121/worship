@@ -18,7 +18,21 @@ const ROLE_TYPES = [
   "THIRD_VOICE",
   "BACKING_VOCAL",
   "INSTRUMENT",
-];
+] as const;
+
+const ROLE_LABELS: Record<string, string> = {
+  FIRST_VOICE: "Primera voz",
+  SECOND_VOICE: "Segunda voz",
+  THIRD_VOICE: "Tercera voz",
+  BACKING_VOCAL: "Coro",
+  INSTRUMENT: "Instrumento",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendiente",
+  PRACTICING: "Ensayando",
+  READY: "Lista",
+};
 
 export function RoleMatrix({
   songId,
@@ -33,7 +47,9 @@ export function RoleMatrix({
 }) {
   const router = useRouter();
   const [userId, setUserId] = useState(members[0]?.id ?? "");
-  const [roleType, setRoleType] = useState(ROLE_TYPES[0] ?? "FIRST_VOICE");
+  const [roleType, setRoleType] = useState<string>(
+    ROLE_TYPES[0] ?? "FIRST_VOICE",
+  );
   const [instrumentName, setInstrumentName] = useState("");
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +66,7 @@ export function RoleMatrix({
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      throw new Error(data?.error ?? "Request failed");
+      throw new Error(data?.error ?? "Error en la solicitud");
     }
     router.refresh();
   }
@@ -65,7 +81,7 @@ export function RoleMatrix({
       }
       await post(`/api/songs/${songId}/roles`, "POST", body);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Assign failed");
+      setError(err instanceof Error ? err.message : "Error al asignar");
     }
   }
 
@@ -74,7 +90,7 @@ export function RoleMatrix({
     try {
       await post(`/api/songs/${songId}/roles/${roleId}`, "DELETE");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      setError(err instanceof Error ? err.message : "Error al eliminar");
     }
   }
 
@@ -85,32 +101,32 @@ export function RoleMatrix({
         harmonyOrPartNotes: notes[roleId] ?? null,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      setError(err instanceof Error ? err.message : "Error al guardar");
     }
   }
 
   return (
     <section>
-      <h2>Roles</h2>
+      <h2>Voces y partes</h2>
       {error ? <p role="alert">{error}</p> : null}
       <table>
         <thead>
           <tr>
-            <th>Member</th>
-            <th>Role</th>
-            <th>Instrument</th>
-            <th>Status</th>
-            {isAdmin ? <th>Notes</th> : null}
-            {isAdmin ? <th>Actions</th> : null}
+            <th>Miembro</th>
+            <th>Voz</th>
+            <th>Instrumento</th>
+            <th>Estado</th>
+            {isAdmin ? <th>Notas</th> : null}
+            {isAdmin ? <th>Acciones</th> : null}
           </tr>
         </thead>
         <tbody>
           {roles.map((r) => (
             <tr key={r.id}>
               <td>{nameById.get(r.userId) ?? r.userId}</td>
-              <td>{r.roleType}</td>
+              <td>{ROLE_LABELS[r.roleType] ?? r.roleType}</td>
               <td>{r.instrumentName ?? "—"}</td>
-              <td>{r.practiceStatus}</td>
+              <td>{STATUS_LABELS[r.practiceStatus] ?? r.practiceStatus}</td>
               {isAdmin ? (
                 <td>
                   <input
@@ -118,17 +134,17 @@ export function RoleMatrix({
                     onChange={(e) =>
                       setNotes((prev) => ({ ...prev, [r.id]: e.target.value }))
                     }
-                    aria-label={`Notes for ${nameById.get(r.userId) ?? r.userId}`}
+                    aria-label={`Notas para ${nameById.get(r.userId) ?? r.userId}`}
                   />
                   <button type="button" onClick={() => saveNotes(r.id)}>
-                    Save
+                    Guardar
                   </button>
                 </td>
               ) : null}
               {isAdmin ? (
                 <td>
                   <button type="button" onClick={() => remove(r.id)}>
-                    Delete
+                    Eliminar
                   </button>
                 </td>
               ) : null}
@@ -138,9 +154,9 @@ export function RoleMatrix({
       </table>
       {isAdmin ? (
         <form onSubmit={assign}>
-          <h3>Assign role</h3>
+          <h3>Asignar voz</h3>
           <label>
-            Member
+            Miembro
             <select value={userId} onChange={(e) => setUserId(e.target.value)}>
               {members.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -150,29 +166,29 @@ export function RoleMatrix({
             </select>
           </label>
           <label>
-            Role
+            Voz
             <select
               value={roleType}
               onChange={(e) => setRoleType(e.target.value)}
             >
               {ROLE_TYPES.map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {ROLE_LABELS[r] ?? r}
                 </option>
               ))}
             </select>
           </label>
           {roleType === "INSTRUMENT" ? (
             <label>
-              Instrument
+              Instrumento
               <input
                 value={instrumentName}
                 onChange={(e) => setInstrumentName(e.target.value)}
-                placeholder="Keys"
+                placeholder="Teclado"
               />
             </label>
           ) : null}
-          <button type="submit">Assign</button>
+          <button type="submit">Asignar</button>
         </form>
       ) : null}
     </section>

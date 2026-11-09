@@ -6,27 +6,33 @@ import { PRACTICE_STATUSES, ROLE_TYPES } from "../domain/role-assignment";
 
 export const usernameSchema = z
   .string()
-  .regex(/^[a-z0-9._-]{3,32}$/, "Invalid username");
-export const emailSchema = z.string().email("Invalid email").max(254);
-export const passwordSchema = z.string().min(8, "Password too short").max(128);
+  .regex(/^[a-z0-9._-]{3,32}$/, "Nombre de usuario inválido");
+export const emailSchema = z
+  .string()
+  .email("Correo electrónico inválido")
+  .max(254);
+export const passwordSchema = z
+  .string()
+  .min(8, "Contraseña demasiado corta")
+  .max(128);
 export const userRoleSchema = z.enum(["ADMIN", "MEMBER"]);
 
 export const musicalKeySchema = z
   .string()
   .refine(
     (v) => (MUSICAL_KEYS as readonly string[]).includes(v),
-    "Invalid musical key",
+    "Tonalidad musical inválida",
   );
 
 export const bpmSchema = z.number().int().min(30).max(300);
 export const timeSignatureSchema = z
   .string()
-  .regex(/^\d{1,2}\/\d{1,2}$/, 'timeSignature must look like "4/4"');
+  .regex(/^\d{1,2}\/\d{1,2}$/, 'El compás debe tener el formato "4/4"');
 export const youtubeInputSchema = z.string().min(1).max(500);
 
 const finiteNumber = z
   .number()
-  .refine(Number.isFinite, "Must be a finite number");
+  .refine(Number.isFinite, "Debe ser un número finito");
 
 export const sectionTimestampSchema = z
   .object({
@@ -35,7 +41,7 @@ export const sectionTimestampSchema = z
     endSeconds: finiteNumber.optional(),
   })
   .refine((s) => s.endSeconds === undefined || s.endSeconds > s.startSeconds, {
-    message: "endSeconds must be > startSeconds",
+    message: "endSeconds debe ser mayor que startSeconds",
     path: ["endSeconds"],
   });
 
@@ -44,7 +50,7 @@ export const practiceStatusSchema = z.enum(PRACTICE_STATUSES);
 
 export const colorHexSchema = z
   .string()
-  .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be hex like "#4F46E5"');
+  .regex(/^#[0-9A-Fa-f]{6}$/, 'El color debe ser hexadecimal como "#4F46E5"');
 export const slugInputSchema = z.string().min(1).max(100);
 
 export const loginSchema = z.object({

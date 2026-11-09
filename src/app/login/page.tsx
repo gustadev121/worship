@@ -21,7 +21,7 @@ export default function LoginPage() {
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Login failed");
+      setError(data?.error ?? "Error al iniciar sesión");
       return;
     }
     router.push("/");
@@ -30,10 +30,10 @@ export default function LoginPage() {
 
   return (
     <section>
-      <h1>Login</h1>
+      <h1>Iniciar sesión</h1>
       <form onSubmit={submit}>
         <label>
-          Username or email
+          Usuario o correo
           <input
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
@@ -41,7 +41,7 @@ export default function LoginPage() {
           />
         </label>
         <label>
-          Password
+          Contraseña
           <input
             type="password"
             value={password}
@@ -49,7 +49,7 @@ export default function LoginPage() {
             required
           />
         </label>
-        <button type="submit">Log in</button>
+        <button type="submit">Entrar</button>
       </form>
       {error ? <p role="alert">{error}</p> : null}
     </section>

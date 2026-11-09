@@ -1,8 +1,7 @@
 export interface AppEnv {
   JWT_SECRET: string;
   YOUTUBE_API_KEY?: string;
-  SQLITE_FILE?: string;
-  DB?: unknown;
+  DB: unknown;
 }
 
 export function resolveEnv(
@@ -22,6 +21,6 @@ export function resolveEnv(
   return {
     JWT_SECRET,
     YOUTUBE_API_KEY: env.YOUTUBE_API_KEY || undefined,
-    SQLITE_FILE: env.SQLITE_FILE || undefined,
+    DB: env.DB,
   };
 }

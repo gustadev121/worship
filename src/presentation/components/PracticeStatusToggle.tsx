@@ -3,7 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const STATUSES = ["PENDING", "PRACTICING", "READY"];
+const STATUSES = [
+  { value: "PENDING", label: "Pendiente" },
+  { value: "PRACTICING", label: "Ensayando" },
+  { value: "READY", label: "Lista" },
+];
 
 export function PracticeStatusToggle({
   songId,
@@ -32,7 +36,7 @@ export function PracticeStatusToggle({
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Update failed");
+      setError(data?.error ?? "Error al actualizar");
       return;
     }
     setStatus(next);
@@ -42,15 +46,15 @@ export function PracticeStatusToggle({
   return (
     <div>
       <label>
-        Practice status
+        Estado de ensayo
         <select
           value={status}
           disabled={saving}
           onChange={(e) => change(e.target.value)}
         >
           {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
+            <option key={s.value} value={s.value}>
+              {s.label}
             </option>
           ))}
         </select>

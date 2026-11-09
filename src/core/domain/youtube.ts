@@ -8,7 +8,7 @@ const URL_ID_PATTERN =
 
 export function normalizeYoutubeVideoId(value: unknown): string {
   if (typeof value !== "string") {
-    throw new ValidationError("YouTube video id must be a string");
+    throw new ValidationError("El id del video de YouTube debe ser un texto");
   }
   if (YOUTUBE_VIDEO_ID_PATTERN.test(value)) {
     return value;
@@ -17,5 +17,5 @@ export function normalizeYoutubeVideoId(value: unknown): string {
   if (match?.[1]) {
     return match[1];
   }
-  throw new ValidationError("Invalid YouTube video id or URL");
+  throw new ValidationError("Id o URL de video de YouTube inválido");
 }

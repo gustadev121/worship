@@ -16,7 +16,7 @@ export default async function AdminUsersPage() {
   const { users } = await container.listUsers.execute({ actor: session });
   return (
     <section>
-      <h1>Users</h1>
+      <h1>Usuarios</h1>
       <UserAdmin initial={users} />
     </section>
   );

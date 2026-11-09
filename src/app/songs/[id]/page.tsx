@@ -37,7 +37,7 @@ export default async function SongDetailPage({
         {song.title} — {song.artist}
       </h1>
       <p>
-        Key {song.originalKey}
+        Tono {song.originalKey}
         {song.practiceKey ? ` → ${song.practiceKey}` : ""}
         {song.bpm ? ` · ${song.bpm} bpm` : ""}
         {song.timeSignature ? ` · ${song.timeSignature}` : ""}
@@ -49,12 +49,12 @@ export default async function SongDetailPage({
       </div>
       {session.role === "ADMIN" ? (
         <p>
-          <Link href={`/songs/${song.id}/edit`}>Edit</Link> ·{" "}
-          <Link href={`/songs/${song.id}/practice`}>Practice</Link>
+          <Link href={`/songs/${song.id}/edit`}>Editar</Link> ·{" "}
+          <Link href={`/songs/${song.id}/practice`}>Ensayar</Link>
         </p>
       ) : (
         <p>
-          <Link href={`/songs/${song.id}/practice`}>Practice</Link>
+          <Link href={`/songs/${song.id}/practice`}>Ensayar</Link>
         </p>
       )}
       <RoleMatrix

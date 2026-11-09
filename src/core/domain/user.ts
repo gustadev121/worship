@@ -18,7 +18,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function createUsername(value: unknown): string {
   if (typeof value !== "string" || !USERNAME_PATTERN.test(value)) {
     throw new ValidationError(
-      "Username must be 3-32 chars: lowercase letters, digits, ., _, -",
+      "El usuario debe tener 3-32 caracteres: minúsculas, dígitos, ., _, -",
     );
   }
   return value;
@@ -30,21 +30,21 @@ export function createEmail(value: unknown): string {
     value.length > 254 ||
     !EMAIL_PATTERN.test(value)
   ) {
-    throw new ValidationError("Invalid email address");
+    throw new ValidationError("Correo electrónico inválido");
   }
   return value.toLowerCase();
 }
 
 export function createPassword(value: unknown): string {
   if (typeof value !== "string" || value.length < 8 || value.length > 128) {
-    throw new ValidationError("Password must be 8-128 characters");
+    throw new ValidationError("La contraseña debe tener 8-128 caracteres");
   }
   return value;
 }
 
 export function createUserRole(value: unknown): UserRole {
   if (value !== "ADMIN" && value !== "MEMBER") {
-    throw new ValidationError('Role must be "ADMIN" or "MEMBER"');
+    throw new ValidationError('El rol debe ser "ADMIN" o "MEMBER"');
   }
   return value;
 }
@@ -59,13 +59,13 @@ export function createUser(input: {
   updatedAt?: unknown;
 }): User {
   if (typeof input.id !== "string" || input.id.length === 0) {
-    throw new ValidationError("User id is required");
+    throw new ValidationError("El id del usuario es requerido");
   }
   if (
     typeof input.passwordHash !== "string" ||
     input.passwordHash.length === 0
   ) {
-    throw new ValidationError("passwordHash is required");
+    throw new ValidationError("El passwordHash es requerido");
   }
   const now = new Date().toISOString();
   return {

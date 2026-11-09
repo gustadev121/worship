@@ -28,7 +28,7 @@ function newId(): string {
 
 function requireAdmin(actor: SessionPayload): void {
   if (actor.role !== "ADMIN") {
-    throw new ForbiddenError("ADMIN only");
+    throw new ForbiddenError("Solo administradores");
   }
 }
 
@@ -59,11 +59,11 @@ export class AssignRole {
     requireAdmin(input.actor);
     const song = await this.songs.findById(input.songId);
     if (!song) {
-      throw new NotFoundError("Song not found");
+      throw new NotFoundError("Canción no encontrada");
     }
     const user = await this.users.findById(input.userId);
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError("Usuario no encontrado");
     }
     // INSTRUMENT names are domain-validated; repository maps ''↔null for the
     // UNIQUE index. Detect duplicates here for a portable ConflictError.
@@ -85,7 +85,7 @@ export class AssignRole {
           roleUniquenessKey(a) === roleUniquenessKey(candidate),
       )
     ) {
-      throw new ConflictError("Duplicate role assignment");
+      throw new ConflictError("Voz ya asignada");
     }
     return { assignment: await this.roles.create(candidate) };
   }
@@ -105,20 +105,22 @@ export class UpdateRoleAssignment {
   }): Promise<{ assignment: RoleAssignment }> {
     const existing = await this.roles.findById(input.id);
     if (!existing) {
-      throw new NotFoundError("Role assignment not found");
+      throw new NotFoundError("Asignación de voz no encontrada");
     }
     const touchesNotes =
       input.harmonyOrPartNotes !== undefined ||
       input.referenceTimestamps !== undefined;
     if (input.actor.role === "MEMBER") {
       if (existing.userId !== input.actor.sub) {
-        throw new ForbiddenError("Cannot edit another member's assignment");
+        throw new ForbiddenError("No puedes editar la parte de otro miembro");
       }
       if (touchesNotes) {
-        throw new ForbiddenError("Members may only update practiceStatus");
+        throw new ForbiddenError(
+          "Los miembros solo pueden actualizar su estado de ensayo",
+        );
       }
       if (input.practiceStatus === undefined) {
-        throw new ValidationError("Nothing to update");
+        throw new ValidationError("Nada que actualizar");
       }
       const patched: RoleAssignment = {
         ...existing,
@@ -158,7 +160,7 @@ export class UpdateInstrumentName {
     requireAdmin(input.actor);
     const existing = await this.roles.findById(input.id);
     if (!existing) {
-      throw new NotFoundError("Role assignment not found");
+      throw new NotFoundError("Asignación de voz no encontrada");
     }
     const patched: RoleAssignment = {
       ...existing,

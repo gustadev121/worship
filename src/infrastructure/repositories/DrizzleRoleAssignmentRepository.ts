@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import type { IRoleAssignmentRepository } from "@/core/application/ports";
 import { ConflictError } from "@/core/domain/errors";
 import type { RoleAssignment } from "@/core/domain/role-assignment";
-import type { Db } from "../db/client";
+import { type Db, isUniqueViolation } from "../db/client";
 import { roleAssignments } from "../db/schema";
 
 interface RoleRow {
@@ -35,11 +35,6 @@ function toDomain(row: RoleRow): RoleAssignment {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /UNIQUE constraint failed|unique/i.test(message);
 }
 
 export class DrizzleRoleAssignmentRepository

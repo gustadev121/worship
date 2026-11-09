@@ -29,7 +29,7 @@ export interface RoleAssignment {
 export function createRoleType(value: unknown): RoleType {
   if (!ROLE_TYPES.includes(value as RoleType)) {
     throw new ValidationError(
-      `roleType must be one of: ${ROLE_TYPES.join(", ")}`,
+      `roleType debe ser uno de: ${ROLE_TYPES.join(", ")}`,
     );
   }
   return value as RoleType;
@@ -38,7 +38,7 @@ export function createRoleType(value: unknown): RoleType {
 export function createPracticeStatus(value: unknown): PracticeStatus {
   if (!PRACTICE_STATUSES.includes(value as PracticeStatus)) {
     throw new ValidationError(
-      `practiceStatus must be one of: ${PRACTICE_STATUSES.join(", ")}`,
+      `practiceStatus debe ser uno de: ${PRACTICE_STATUSES.join(", ")}`,
     );
   }
   return value as PracticeStatus;
@@ -55,13 +55,15 @@ export function createInstrumentName(
       value.length > 50
     ) {
       throw new ValidationError(
-        "INSTRUMENT roles require instrumentName 2-50 chars",
+        "Los roles INSTRUMENT requieren instrumentName de 2-50 caracteres",
       );
     }
     return value;
   }
   if (value !== null && value !== undefined) {
-    throw new ValidationError("Vocal roles require instrumentName to be null");
+    throw new ValidationError(
+      "Los roles vocales requieren instrumentName nulo",
+    );
   }
   return null;
 }
@@ -72,7 +74,7 @@ export function createHarmonyNotes(value: unknown): string | null {
   }
   if (typeof value !== "string" || value.length > 5000) {
     throw new ValidationError(
-      "harmonyOrPartNotes must be a string up to 5000 chars",
+      "harmonyOrPartNotes debe ser un texto de hasta 5000 caracteres",
     );
   }
   return value;
@@ -85,11 +87,13 @@ export function createReferenceTimestamps(
     return null;
   }
   if (!Array.isArray(value)) {
-    throw new ValidationError("referenceTimestamps must be an array or null");
+    throw new ValidationError("referenceTimestamps debe ser un arreglo o nulo");
   }
   return value.map((entry) => {
     if (typeof entry !== "object" || entry === null) {
-      throw new ValidationError("referenceTimestamps entries must be objects");
+      throw new ValidationError(
+        "Las entradas de referenceTimestamps deben ser objetos",
+      );
     }
     const record = entry as {
       label: unknown;
@@ -113,13 +117,13 @@ export function createRoleAssignment(input: {
   updatedAt?: unknown;
 }): RoleAssignment {
   if (typeof input.id !== "string" || input.id.length === 0) {
-    throw new ValidationError("Role assignment id is required");
+    throw new ValidationError("El id de la asignación de rol es requerido");
   }
   if (typeof input.songId !== "string" || input.songId.length === 0) {
-    throw new ValidationError("songId is required");
+    throw new ValidationError("songId es requerido");
   }
   if (typeof input.userId !== "string" || input.userId.length === 0) {
-    throw new ValidationError("userId is required");
+    throw new ValidationError("userId es requerido");
   }
   const roleType = createRoleType(input.roleType);
   const now = new Date().toISOString();

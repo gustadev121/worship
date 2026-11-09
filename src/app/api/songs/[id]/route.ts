@@ -2,7 +2,7 @@ import { updateSongSchema } from "@/core/application/schemas";
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 interface SongParams {
   params: Promise<{ id: string }>;
@@ -39,7 +39,10 @@ export async function PATCH(
     const body: unknown = await req.json();
     const parsed = updateSongSchema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: "Invalid song input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de canción inválidos" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     const { song } = await container.updateSong.execute({
@@ -47,7 +50,6 @@ export async function PATCH(
       id,
       patch: parsed.data,
     });
-    persist(container);
     return Response.json({ song });
   } catch (err) {
     return errorResponse(err);
@@ -66,7 +68,6 @@ export async function DELETE(
     const { id } = await params;
     const container = await getContainer(await getRequestEnv());
     await container.deleteSong.execute({ actor: session, id });
-    persist(container);
     return Response.json({ ok: true });
   } catch (err) {
     return errorResponse(err);

@@ -14,7 +14,15 @@ const ROLE_TYPES = [
   "THIRD_VOICE",
   "BACKING_VOCAL",
   "INSTRUMENT",
-];
+] as const;
+
+const ROLE_LABELS: Record<string, string> = {
+  FIRST_VOICE: "Primera voz",
+  SECOND_VOICE: "Segunda voz",
+  THIRD_VOICE: "Tercera voz",
+  BACKING_VOCAL: "Coro",
+  INSTRUMENT: "Instrumento",
+};
 
 export function SongFilters({ labels }: { labels: FilterLabel[] }) {
   const router = useRouter();
@@ -69,12 +77,12 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
       <input
         type="search"
         name="q"
-        placeholder="Search title or artist"
+        placeholder="Buscar por título o artista"
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
       <fieldset>
-        <legend>Labels</legend>
+        <legend>Etiquetas</legend>
         {labels.map((label) => (
           <label key={label.id}>
             <input
@@ -87,21 +95,21 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
         ))}
       </fieldset>
       <label>
-        Practice key
+        Tono de ensayo
         <input
           name="practiceKey"
-          placeholder="e.g. G major"
+          placeholder="p. ej. Sol mayor"
           value={practiceKey}
           onChange={(e) => setPracticeKey(e.target.value)}
         />
       </label>
       <label>
-        Role type
+        Tipo de voz
         <select value={roleType} onChange={(e) => setRoleType(e.target.value)}>
-          <option value="">Any</option>
+          <option value="">Cualquiera</option>
           {ROLE_TYPES.map((r) => (
             <option key={r} value={r}>
-              {r}
+              {ROLE_LABELS[r] ?? r}
             </option>
           ))}
         </select>
@@ -112,9 +120,9 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
           checked={mine}
           onChange={(e) => setMine(e.target.checked)}
         />
-        My parts only
+        Solo mis partes
       </label>
-      <button type="submit">Filter</button>
+      <button type="submit">Filtrar</button>
     </form>
   );
 }

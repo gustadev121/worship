@@ -31,7 +31,7 @@ import {
 import { SearchYouTube } from "@/core/application/use-cases/youtube";
 import { JoseJwtTokenService } from "./auth/JoseJwtTokenService";
 import { WebCryptoPasswordHasher } from "./auth/WebCryptoPasswordHasher";
-import { type Db, type DbEnv, getDb } from "./db/client";
+import { type D1Binding, type Db, getDb } from "./db/client";
 import type { AppEnv } from "./env";
 import { DrizzleLabelRepository } from "./repositories/DrizzleLabelRepository";
 import { DrizzleRoleAssignmentRepository } from "./repositories/DrizzleRoleAssignmentRepository";
@@ -42,7 +42,6 @@ import { YouTubeApiAdapter } from "./youtube/YouTubeApiAdapter";
 
 export interface Container {
   db: Db;
-  save: () => void;
   users: DrizzleUserRepository;
   songs: DrizzleSongRepository;
   roles: DrizzleRoleAssignmentRepository;
@@ -75,11 +74,12 @@ export interface Container {
 }
 
 export async function getContainer(env: AppEnv): Promise<Container> {
-  const dbEnv: DbEnv = { SQLITE_FILE: env.SQLITE_FILE };
-  if (env.DB !== undefined) {
-    dbEnv.DB = env.DB as DbEnv["DB"];
+  if (env.DB === undefined) {
+    throw new Error(
+      "DB binding is required (D1 local en dev, D1 real en prod)",
+    );
   }
-  const { db, save } = await getDb(dbEnv);
+  const db = await getDb(env.DB as D1Binding);
   const users = new DrizzleUserRepository(db);
   const songs = new DrizzleSongRepository(db);
   const roles = new DrizzleRoleAssignmentRepository(db);
@@ -92,7 +92,6 @@ export async function getContainer(env: AppEnv): Promise<Container> {
       : new MockYouTubeAdapter();
   return {
     db,
-    save,
     users,
     songs,
     roles,

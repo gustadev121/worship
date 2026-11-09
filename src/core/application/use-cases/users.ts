@@ -23,7 +23,7 @@ function newId(): string {
 
 function requireAdmin(actor: SessionPayload): void {
   if (actor.role !== "ADMIN") {
-    throw new ForbiddenError("ADMIN only");
+    throw new ForbiddenError("Solo administradores");
   }
 }
 
@@ -39,11 +39,11 @@ export class LoginUser {
   }): Promise<{ user: UserDTO }> {
     const user = await this.users.findByUsernameOrEmail(input.identifier);
     if (!user) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError("Credenciales inválidas");
     }
     const ok = await this.hasher.verify(input.password, user.passwordHash);
     if (!ok) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError("Credenciales inválidas");
     }
     return { user: toUserDTO(user) };
   }
@@ -107,7 +107,7 @@ export class UpdateUser {
     requireAdmin(input.actor);
     const existing = await this.users.findById(input.id);
     if (!existing) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError("Usuario no encontrado");
     }
     const patched = updateUser(existing, {
       username: input.username,

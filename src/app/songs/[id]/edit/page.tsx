@@ -23,7 +23,7 @@ export default async function EditSongPage({
     .catch(() => redirect("/"));
   return (
     <section>
-      <h1>Edit {song.title}</h1>
+      <h1>Editar {song.title}</h1>
       <SongForm
         mode="edit"
         songId={song.id}

@@ -18,7 +18,7 @@ function newId(): string {
 
 function requireAdmin(actor: SessionPayload): void {
   if (actor.role !== "ADMIN") {
-    throw new ForbiddenError("ADMIN only");
+    throw new ForbiddenError("Solo administradores");
   }
 }
 
@@ -28,7 +28,7 @@ export class GetSong {
   async execute(input: { id: string }): Promise<{ song: Song }> {
     const song = await this.songs.findById(input.id);
     if (!song) {
-      throw new NotFoundError("Song not found");
+      throw new NotFoundError("Canción no encontrada");
     }
     return { song };
   }
@@ -89,10 +89,9 @@ export class UpdateSong {
     id: string;
     patch: SongPatch;
   }): Promise<{ song: Song }> {
-    requireAdmin(input.actor);
     const existing = await this.songs.findById(input.id);
     if (!existing) {
-      throw new NotFoundError("Song not found");
+      throw new NotFoundError("Canción no encontrada");
     }
     return { song: await this.songs.update(updateSong(existing, input.patch)) };
   }

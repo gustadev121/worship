@@ -9,7 +9,7 @@ export class SearchYouTube {
     maxResults?: number;
   }): Promise<{ results: YouTubeResult[] }> {
     if (typeof input.query !== "string" || input.query.trim().length === 0) {
-      throw new ValidationError("Search query is required");
+      throw new ValidationError("La búsqueda es obligatoria");
     }
     return {
       results: await this.provider.search(input.query.trim(), input.maxResults),

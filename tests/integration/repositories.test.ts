@@ -1,7 +1,5 @@
-import { beforeEach, describe, expect, test } from "bun:test";
-import { mkdtempSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { ConflictError } from "@/core/domain/errors";
 import { createLabel } from "@/core/domain/label";
 import { createRoleAssignment } from "@/core/domain/role-assignment";
@@ -17,7 +15,7 @@ const now = "2026-01-01T00:00:00.000Z";
 
 interface Fixture {
   db: Db;
-  save: () => void;
+  mf: Miniflare;
   users: DrizzleUserRepository;
   songs: DrizzleSongRepository;
   roles: DrizzleRoleAssignmentRepository;
@@ -25,11 +23,23 @@ interface Fixture {
 }
 
 async function setup(): Promise<Fixture> {
-  const dir = mkdtempSync(join(tmpdir(), "wf-repos-"));
-  const { db, save } = await getDb({ SQLITE_FILE: join(dir, "test.db") });
+  const mf = new Miniflare(
+    convertV4MiniflareOptions({
+      workers: [
+        {
+          name: "test",
+          compatibilityDate: "2026-10-26",
+          modules: true,
+          script: "export default { fetch() { return new Response('ok'); } }",
+          d1Databases: ["DB"],
+        },
+      ],
+    }),
+  );
+  const db = await getDb(await mf.getD1Database("DB"));
   return {
     db,
-    save,
+    mf,
     users: new DrizzleUserRepository(db),
     songs: new DrizzleSongRepository(db),
     roles: new DrizzleRoleAssignmentRepository(db),
@@ -40,6 +50,9 @@ async function setup(): Promise<Fixture> {
 let fx: Fixture;
 beforeEach(async () => {
   fx = await setup();
+});
+afterEach(async () => {
+  await fx.mf.dispose();
 });
 
 function seedUser(
@@ -97,7 +110,6 @@ describe("repositories", () => {
     expect(list.length).toBe(1);
     await fx.users.delete("u1");
     expect(await fx.users.findById("u1")).toBeNull();
-    fx.save();
   });
 
   test("label slug uniqueness rejects with ConflictError", async () => {
@@ -232,7 +244,6 @@ describe("repositories", () => {
     await fx.songs.delete("s1");
     expect(await fx.roles.listBySong("s1")).toEqual([]);
     expect(await fx.labels.getSongLabelIds("s1")).toEqual([]);
-    fx.save();
   });
 
   test("user cascade deletes assignments", async () => {

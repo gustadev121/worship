@@ -76,7 +76,7 @@ export function SongForm({
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Save failed");
+      setError(data?.error ?? "Error al guardar");
       return;
     }
     const data = (await res.json()) as { song: { id: string } };
@@ -87,7 +87,7 @@ export function SongForm({
   return (
     <form onSubmit={submit}>
       <label>
-        Title
+        Título
         <input
           value={value.title}
           onChange={(e) => set("title", e.target.value)}
@@ -95,7 +95,7 @@ export function SongForm({
         />
       </label>
       <label>
-        Artist
+        Artista
         <input
           value={value.artist}
           onChange={(e) => set("artist", e.target.value)}
@@ -103,7 +103,7 @@ export function SongForm({
         />
       </label>
       <label>
-        Original key
+        Tono original
         <input
           value={value.originalKey}
           onChange={(e) => set("originalKey", e.target.value)}
@@ -111,7 +111,7 @@ export function SongForm({
         />
       </label>
       <label>
-        Practice key
+        Tono de ensayo
         <input
           value={value.practiceKey}
           onChange={(e) => set("practiceKey", e.target.value)}
@@ -126,27 +126,27 @@ export function SongForm({
         />
       </label>
       <label>
-        Time signature
+        Compás
         <input
           value={value.timeSignature}
           onChange={(e) => set("timeSignature", e.target.value)}
         />
       </label>
       <label>
-        Lyrics and chords
+        Letra y acordes
         <textarea
           value={value.lyricsAndChords}
           onChange={(e) => set("lyricsAndChords", e.target.value)}
         />
       </label>
       <label>
-        YouTube video
+        Video de YouTube
         <input
           value={value.youtubeVideoId}
           onChange={(e) => set("youtubeVideoId", e.target.value)}
         />
       </label>
-      <button type="submit">{mode === "create" ? "Create" : "Save"}</button>
+      <button type="submit">{mode === "create" ? "Crear" : "Guardar"}</button>
       {error ? <p role="alert">{error}</p> : null}
     </form>
   );

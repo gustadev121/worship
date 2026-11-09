@@ -29,7 +29,7 @@ const KEY_SET: ReadonlySet<string> = new Set(MUSICAL_KEYS);
 export function createMusicalKey(value: unknown): MusicalKey {
   if (typeof value !== "string" || !KEY_SET.has(value)) {
     throw new ValidationError(
-      `Musical key must be one of: ${MUSICAL_KEYS.join(", ")}`,
+      `El tono debe ser uno de: ${MUSICAL_KEYS.join(", ")}`,
     );
   }
   return value as MusicalKey;

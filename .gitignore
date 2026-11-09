@@ -3,6 +3,7 @@ dist
 .wrangler
 build
 coverage
-data/*.db*
 .env
 .vinext/
+.next/
+next-env.d.ts

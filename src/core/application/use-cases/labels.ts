@@ -18,7 +18,7 @@ function newId(): string {
 
 function requireAdmin(actor: SessionPayload): void {
   if (actor.role !== "ADMIN") {
-    throw new ForbiddenError("ADMIN only");
+    throw new ForbiddenError("Solo administradores");
   }
 }
 
@@ -44,7 +44,7 @@ export class CreateLabel {
     const slug =
       input.slug === undefined ? createSlug(name) : createSlug(input.slug);
     if (await this.labels.findBySlug(slug)) {
-      throw new ConflictError(`Label slug "${slug}" already exists`);
+      throw new ConflictError(`La etiqueta "${slug}" ya existe`);
     }
     return {
       label: await this.labels.create(
@@ -72,7 +72,7 @@ export class UpdateLabel {
     requireAdmin(input.actor);
     const existing = await this.labels.findById(input.id);
     if (!existing) {
-      throw new NotFoundError("Label not found");
+      throw new NotFoundError("Etiqueta no encontrada");
     }
     const name =
       input.name === undefined ? existing.name : createLabelName(input.name);
@@ -84,7 +84,7 @@ export class UpdateLabel {
         : createSlug(input.slug);
     const clash = await this.labels.findBySlug(slug);
     if (clash && clash.id !== existing.id) {
-      throw new ConflictError(`Label slug "${slug}" already exists`);
+      throw new ConflictError(`La etiqueta "${slug}" ya existe`);
     }
     const colorHex =
       input.colorHex === undefined

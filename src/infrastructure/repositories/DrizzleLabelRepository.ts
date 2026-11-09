@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import type { ILabelRepository } from "@/core/application/ports";
 import { ConflictError } from "@/core/domain/errors";
 import type { Label } from "@/core/domain/label";
-import type { Db } from "../db/client";
+import { type Db, isUniqueViolation } from "../db/client";
 import { labels, songLabels } from "../db/schema";
 
 function toDomain(row: {
@@ -12,11 +12,6 @@ function toDomain(row: {
   colorHex: string;
 }): Label {
   return { id: row.id, name: row.name, slug: row.slug, colorHex: row.colorHex };
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /UNIQUE constraint failed|unique/i.test(message);
 }
 
 export class DrizzleLabelRepository implements ILabelRepository {

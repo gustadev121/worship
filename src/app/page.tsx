@@ -59,17 +59,16 @@ export default async function CatalogPage({
     container.listSongs.execute({ filter }),
     container.listLabels.execute(),
   ]);
-
   return (
     <section>
-      <h1>Song catalog</h1>
+      <h1>Catálogo de canciones</h1>
       <SongFilters labels={labels} />
       {songs.map((song) => (
         <div key={song.id}>
           <SongCard song={song} />
         </div>
       ))}
-      {songs.length === 0 ? <p>No songs found.</p> : null}
+      {songs.length === 0 ? <p>No se encontraron canciones.</p> : null}
     </section>
   );
 }

@@ -120,7 +120,7 @@ export function RehearsalPlayer({
   }, [youtubeVideoId]);
 
   if (!youtubeVideoId) {
-    return <p>No rehearsal video attached to this song yet.</p>;
+    return <p>Todavía no hay video de ensayo para esta canción.</p>;
   }
 
   function setRate(rate: number) {
@@ -180,7 +180,7 @@ export function RehearsalPlayer({
             }
           }}
         >
-          Set A ({loop.a.toFixed(1)}s)
+          Marcar A ({loop.a.toFixed(1)}s)
         </button>
         <button
           type="button"
@@ -195,16 +195,16 @@ export function RehearsalPlayer({
             }
           }}
         >
-          Set B ({loop.b === null ? "—" : `${loop.b.toFixed(1)}s`})
+          Marcar B ({loop.b === null ? "—" : `${loop.b.toFixed(1)}s`})
         </button>
         <button type="button" onClick={() => setLoop({ a: 0, b: null })}>
-          Clear loop
+          Borrar repetición
         </button>
       </div>
-      {practiceKey ? <p>Practice key: {practiceKey}</p> : null}
+      {practiceKey ? <p>Tono de ensayo: {practiceKey}</p> : null}
       {viewerRole ? (
         <p>
-          Your part: {viewerRole.roleType}
+          Tu parte: {viewerRole.roleType}
           {viewerRole.harmonyOrPartNotes
             ? ` — ${viewerRole.harmonyOrPartNotes}`
             : ""}

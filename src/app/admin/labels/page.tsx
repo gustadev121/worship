@@ -16,7 +16,7 @@ export default async function AdminLabelsPage() {
   const { labels } = await container.listLabels.execute();
   return (
     <section>
-      <h1>Labels</h1>
+      <h1>Etiquetas</h1>
       <LabelAdmin initial={labels} />
     </section>
   );

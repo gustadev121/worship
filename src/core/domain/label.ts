@@ -13,14 +13,16 @@ export function createLabelName(value: unknown): string {
     value.trim().length === 0 ||
     value.length > 100
   ) {
-    throw new ValidationError("Label name must be 1-100 characters");
+    throw new ValidationError(
+      "El nombre de la etiqueta debe tener 1-100 caracteres",
+    );
   }
   return value.trim();
 }
 
 export function createSlug(name: unknown): string {
   if (typeof name !== "string") {
-    throw new ValidationError("Label name must be a string");
+    throw new ValidationError("El nombre de la etiqueta debe ser un texto");
   }
   const slug = name
     .toLowerCase()
@@ -31,7 +33,7 @@ export function createSlug(name: unknown): string {
     .replace(/^-|-$/g, "");
   if (slug.length === 0) {
     throw new ValidationError(
-      "Label name must contain at least one letter or digit",
+      "El nombre de la etiqueta debe contener al menos una letra o un dígito",
     );
   }
   return slug;
@@ -39,7 +41,7 @@ export function createSlug(name: unknown): string {
 
 export function createColorHex(value: unknown): string {
   if (typeof value !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(value)) {
-    throw new ValidationError('Color must be hex like "#4F46E5"');
+    throw new ValidationError('El color debe ser hexadecimal como "#4F46E5"');
   }
   return value;
 }
@@ -51,7 +53,7 @@ export function createLabel(input: {
   colorHex: unknown;
 }): Label {
   if (typeof input.id !== "string" || input.id.length === 0) {
-    throw new ValidationError("Label id is required");
+    throw new ValidationError("El id de la etiqueta es requerido");
   }
   const name = createLabelName(input.name);
   return {

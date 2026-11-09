@@ -2,7 +2,7 @@ import { assignRoleSchema } from "@/core/application/schemas";
 import { getContainer } from "@/infrastructure/container";
 import { getSession } from "@/presentation/auth";
 import { getRequestEnv } from "@/presentation/get-request-env";
-import { errorResponse, persist, unauthorized } from "@/presentation/http";
+import { errorResponse, unauthorized } from "@/presentation/http";
 
 interface RolesParams {
   params: Promise<{ id: string }>;
@@ -44,14 +44,16 @@ export async function POST(
       songId: id,
     });
     if (!parsed.success) {
-      return Response.json({ error: "Invalid role input" }, { status: 400 });
+      return Response.json(
+        { error: "Datos de voz inválidos" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     const { assignment } = await container.assignRole.execute({
       actor: session,
       ...parsed.data,
     });
-    persist(container);
     return Response.json({ assignment }, { status: 201 });
   } catch (err) {
     return errorResponse(err);

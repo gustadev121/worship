@@ -12,7 +12,10 @@ export async function GET(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const q = (url.searchParams.get("q") ?? "").trim();
     if (q.length === 0) {
-      return Response.json({ error: "Query is required" }, { status: 400 });
+      return Response.json(
+        { error: "La búsqueda es obligatoria" },
+        { status: 400 },
+      );
     }
     const container = await getContainer(await getRequestEnv());
     const { results } = await container.searchYouTube.execute({ query: q });

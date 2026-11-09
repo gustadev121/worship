@@ -1,13 +1,46 @@
 /**
  * Idempotent local seed: clears and re-inserts in FK order.
  * Run with: bun run seed
- * Env: JWT_SECRET (required by resolveEnv), SEED_ADMIN_PASSWORD (optional),
- * SQLITE_FILE (optional), YOUTUBE_API_KEY (optional, unused by seed).
+ * Env: JWT_SECRET (required), SEED_ADMIN_PASSWORD (optional),
+ * YOUTUBE_API_KEY (optional, unused by seed).
+ *
+ * Writes straight into the SAME local D1 database the dev worker reads
+ * (miniflare stored at .wrangler/state). No sqlite, no second database.
  */
+import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { getContainer } from "@/infrastructure/container";
-import { resolveEnv } from "@/infrastructure/env";
+import type { AppEnv } from "@/infrastructure/env";
 
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is required");
+}
+
+const mf = new Miniflare(
+  convertV4MiniflareOptions({
+    resourcePersistencePath: "./.wrangler/state/v3",
+    workers: [
+      {
+        name: "seed",
+        compatibilityDate: "2026-10-26",
+        modules: true,
+        script: "export default { fetch() { return new Response('ok'); } }",
+        d1Databases: {
+          DB: { id: "00000000-0000-0000-0000-000000000000" },
+        },
+      },
+    ],
+  }),
+);
+const DB = await mf.getD1Database("DB");
+
+const env: AppEnv = {
+  JWT_SECRET,
+  YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || undefined,
+  DB,
+};
+const c = await getContainer(env);
 
 interface SeedUser {
   username: string;
@@ -152,7 +185,6 @@ const ASSIGNMENTS: SeedAssignment[] = [
   },
 ];
 
-const container = await getContainer(resolveEnv());
 const bootstrapActor = {
   sub: "seed-admin",
   username: "admin",
@@ -160,28 +192,26 @@ const bootstrapActor = {
 };
 
 // Clear in FK order: role assignments first, then songs/labels/users.
-for (const song of await container.songs.list({})) {
-  const { assignments } = await container.listSongRoles.execute({
+for (const song of await c.songs.list({})) {
+  const { assignments } = await c.listSongRoles.execute({
     songId: song.id,
   });
   for (const a of assignments) {
-    await container.roles.delete(a.id);
+    await c.roles.delete(a.id);
   }
-  await container.deleteSong.execute({ actor: bootstrapActor, id: song.id });
+  await c.deleteSong.execute({ actor: bootstrapActor, id: song.id });
 }
-for (const label of await container.listLabels
-  .execute()
-  .then((r) => r.labels)) {
-  await container.deleteLabel.execute({ actor: bootstrapActor, id: label.id });
+for (const label of await c.listLabels.execute().then((r) => r.labels)) {
+  await c.deleteLabel.execute({ actor: bootstrapActor, id: label.id });
 }
-for (const user of await container.listUsers
+for (const user of await c.listUsers
   .execute({ actor: bootstrapActor })
   .then((r) => r.users)) {
-  await container.deleteUser.execute({ actor: bootstrapActor, id: user.id });
+  await c.deleteUser.execute({ actor: bootstrapActor, id: user.id });
 }
 
 // Users.
-const { user: firstAdmin } = await container.createUser.execute({
+const { user: firstAdmin } = await c.createUser.execute({
   actor: bootstrapActor,
   username: ADMIN_SEED.username,
   email: ADMIN_SEED.email,
@@ -195,7 +225,7 @@ const actor = {
 };
 const byUsername = new Map([[firstAdmin.username, firstAdmin]]);
 for (const u of MEMBER_SEEDS) {
-  const { user } = await container.createUser.execute({
+  const { user } = await c.createUser.execute({
     actor,
     username: u.username,
     email: u.email,
@@ -208,14 +238,14 @@ for (const u of MEMBER_SEEDS) {
 // Labels.
 const bySlug = new Map<string, string>();
 for (const l of LABELS) {
-  const { label } = await container.createLabel.execute({ actor, ...l });
+  const { label } = await c.createLabel.execute({ actor, ...l });
   bySlug.set(label.slug, label.id);
 }
 
 // Songs + label links.
 const songIds: string[] = [];
 for (const s of SONGS) {
-  const { song } = await container.createSong.execute({
+  const { song } = await c.createSong.execute({
     actor,
     title: s.title,
     artist: s.artist,
@@ -231,7 +261,7 @@ for (const s of SONGS) {
   const labelIds = s.labels
     .map((slug) => bySlug.get(slug))
     .filter((id) => id !== undefined);
-  await container.setSongLabels.execute({ actor, songId: song.id, labelIds });
+  await c.setSongLabels.execute({ actor, songId: song.id, labelIds });
 }
 
 // Assignments.
@@ -244,7 +274,7 @@ for (const a of ASSIGNMENTS) {
       `Seed reference missing for assignment ${a.user} on song index ${a.song}`,
     );
   }
-  await container.assignRole.execute({
+  await c.assignRole.execute({
     actor,
     songId,
     userId: user.id,
@@ -256,7 +286,7 @@ for (const a of ASSIGNMENTS) {
   assignmentCount++;
 }
 
-container.save();
+await mf.dispose();
 
 console.log(
   `users=${byUsername.size} labels=${bySlug.size} songs=${songIds.length} assignments=${assignmentCount}`,

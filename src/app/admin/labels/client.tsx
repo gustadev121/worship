@@ -28,7 +28,7 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Create failed");
+      setError(data?.error ?? "Error al crear");
       return;
     }
     setName("");
@@ -42,7 +42,7 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Delete failed");
+      setError(data?.error ?? "Error al eliminar");
       return;
     }
     router.refresh();
@@ -54,10 +54,10 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
       <table>
         <thead>
           <tr>
-            <th>Name</th>
+            <th>Nombre</th>
             <th>Slug</th>
             <th>Color</th>
-            <th>Actions</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -68,7 +68,7 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
               <td>{l.colorHex}</td>
               <td>
                 <button type="button" onClick={() => remove(l.id)}>
-                  Delete
+                  Eliminar
                 </button>
               </td>
             </tr>
@@ -76,9 +76,9 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
         </tbody>
       </table>
       <form onSubmit={create}>
-        <h2>Create label</h2>
+        <h2>Crear etiqueta</h2>
         <label>
-          Name
+          Nombre
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -93,7 +93,7 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
             required
           />
         </label>
-        <button type="submit">Create</button>
+        <button type="submit">Crear</button>
       </form>
     </div>
   );

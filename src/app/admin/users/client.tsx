@@ -30,7 +30,7 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Create failed");
+      setError(data?.error ?? "Error al crear");
       return;
     }
     setUsername("");
@@ -46,7 +46,7 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Delete failed");
+      setError(data?.error ?? "Error al eliminar");
       return;
     }
     router.refresh();
@@ -58,10 +58,10 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
       <table>
         <thead>
           <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -72,7 +72,7 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
               <td>{u.role}</td>
               <td>
                 <button type="button" onClick={() => remove(u.id)}>
-                  Delete
+                  Eliminar
                 </button>
               </td>
             </tr>
@@ -80,9 +80,9 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
         </tbody>
       </table>
       <form onSubmit={create}>
-        <h2>Create user</h2>
+        <h2>Crear usuario</h2>
         <label>
-          Username
+          Usuario
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -90,7 +90,7 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
           />
         </label>
         <label>
-          Email
+          Correo
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -98,7 +98,7 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
           />
         </label>
         <label>
-          Password
+          Contraseña
           <input
             type="password"
             value={password}
@@ -107,13 +107,13 @@ export function UserAdmin({ initial }: { initial: AdminUser[] }) {
           />
         </label>
         <label>
-          Role
+          Rol
           <select value={role} onChange={(e) => setRole(e.target.value)}>
             <option value="MEMBER">MEMBER</option>
             <option value="ADMIN">ADMIN</option>
           </select>
         </label>
-        <button type="submit">Create</button>
+        <button type="submit">Crear</button>
       </form>
     </div>
   );

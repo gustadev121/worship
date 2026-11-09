@@ -25,7 +25,7 @@ export default async function PracticePage({
   return (
     <section>
       <h1>
-        Practice: {song.title} — {song.artist}
+        Ensayo: {song.title} — {song.artist}
       </h1>
       <RehearsalPlayer
         youtubeVideoId={song.youtubeVideoId}
@@ -49,7 +49,9 @@ export default async function PracticePage({
           initial={a.practiceStatus}
         />
       ))}
-      {mine.length === 0 ? <p>No assigned part for you on this song.</p> : null}
+      {mine.length === 0 ? (
+        <p>No tienes una parte asignada en esta canción.</p>
+      ) : null}
     </section>
   );
 }

@@ -5,6 +5,12 @@ import {
   UpdateLabel,
 } from "@/core/application/use-cases/labels";
 import {
+  GetRoadmap,
+  SeedRoadmap,
+  ToggleCapabilityVote,
+  UpdateMilestoneStatus,
+} from "@/core/application/use-cases/roadmap";
+import {
   AssignRole,
   DeleteRoleAssignment,
   ListSongRoles,
@@ -34,6 +40,7 @@ import { WebCryptoPasswordHasher } from "./auth/WebCryptoPasswordHasher";
 import { type D1Binding, type Db, getDb } from "./db/client";
 import type { AppEnv } from "./env";
 import { DrizzleLabelRepository } from "./repositories/DrizzleLabelRepository";
+import { DrizzleRoadmapRepository } from "./repositories/DrizzleRoadmapRepository";
 import { DrizzleRoleAssignmentRepository } from "./repositories/DrizzleRoleAssignmentRepository";
 import { DrizzleSongRepository } from "./repositories/DrizzleSongRepository";
 import { DrizzleUserRepository } from "./repositories/DrizzleUserRepository";
@@ -46,6 +53,7 @@ export interface Container {
   songs: DrizzleSongRepository;
   roles: DrizzleRoleAssignmentRepository;
   labels: DrizzleLabelRepository;
+  roadmap: DrizzleRoadmapRepository;
   hasher: WebCryptoPasswordHasher;
   tokens: JoseJwtTokenService;
   loginUser: LoginUser;
@@ -71,6 +79,10 @@ export interface Container {
   updateLabel: UpdateLabel;
   deleteLabel: DeleteLabel;
   searchYouTube: SearchYouTube;
+  getRoadmap: GetRoadmap;
+  updateMilestoneStatus: UpdateMilestoneStatus;
+  toggleCapabilityVote: ToggleCapabilityVote;
+  seedRoadmap: SeedRoadmap;
 }
 
 export async function getContainer(env: AppEnv): Promise<Container> {
@@ -84,6 +96,7 @@ export async function getContainer(env: AppEnv): Promise<Container> {
   const songs = new DrizzleSongRepository(db);
   const roles = new DrizzleRoleAssignmentRepository(db);
   const labels = new DrizzleLabelRepository(db);
+  const roadmap = new DrizzleRoadmapRepository(db);
   const hasher = new WebCryptoPasswordHasher();
   const tokens = new JoseJwtTokenService(env.JWT_SECRET);
   const youtube =
@@ -96,6 +109,7 @@ export async function getContainer(env: AppEnv): Promise<Container> {
     songs,
     roles,
     labels,
+    roadmap,
     hasher,
     tokens,
     loginUser: new LoginUser(users, hasher),
@@ -121,5 +135,9 @@ export async function getContainer(env: AppEnv): Promise<Container> {
     updateLabel: new UpdateLabel(labels),
     deleteLabel: new DeleteLabel(labels),
     searchYouTube: new SearchYouTube(youtube),
+    getRoadmap: new GetRoadmap(roadmap),
+    updateMilestoneStatus: new UpdateMilestoneStatus(roadmap),
+    toggleCapabilityVote: new ToggleCapabilityVote(roadmap),
+    seedRoadmap: new SeedRoadmap(roadmap),
   };
 }

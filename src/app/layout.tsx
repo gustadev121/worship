@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <header>
           <nav>
-            <Link href="/">Catálogo</Link>{" "}
+            <Link href="/">Catálogo</Link> <Link href="/roadmap">Roadmap</Link>{" "}
             <Link href="/login">Iniciar sesión</Link>{" "}
             <Link href="/songs/new">Nueva canción</Link>{" "}
             <Link href="/admin/users">Usuarios</Link>{" "}

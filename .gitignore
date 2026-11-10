@@ -7,3 +7,5 @@ coverage
 .vinext/
 .next/
 next-env.d.ts
+.agents/
+*.log

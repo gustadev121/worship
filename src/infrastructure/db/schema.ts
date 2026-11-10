@@ -72,4 +72,97 @@ export const songLabels = sqliteTable(
   (t) => [primaryKey({ columns: [t.songId, t.labelId] })],
 );
 
-export const schema = { users, songs, roleAssignments, labels, songLabels };
+export const roadmapPhases = sqliteTable("roadmap_phases", {
+  id: text("id").primaryKey(),
+  phaseNumber: integer("phase_number").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  status: text("status").notNull(),
+  targetHorizon: text("target_horizon").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const roadmapMilestones = sqliteTable("roadmap_milestones", {
+  id: text("id").primaryKey(),
+  phaseId: text("phase_id")
+    .notNull()
+    .references(() => roadmapPhases.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  status: text("status").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  targetCompletionDate: text("target_completion_date"),
+  releaseNotes: text("release_notes"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const roadmapCapabilities = sqliteTable("roadmap_capabilities", {
+  id: text("id").primaryKey(),
+  milestoneId: text("milestone_id")
+    .notNull()
+    .references(() => roadmapMilestones.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  targetPersona: text("target_persona").notNull(),
+  functionalTrack: text("functional_track").notNull(),
+  priorityTier: text("priority_tier").notNull(),
+  acceptanceCriteria: text("acceptance_criteria").notNull(),
+  isCompleted: integer("is_completed", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const roadmapDependencies = sqliteTable(
+  "roadmap_dependencies",
+  {
+    id: text("id").primaryKey(),
+    dependentMilestoneId: text("dependent_milestone_id")
+      .notNull()
+      .references(() => roadmapMilestones.id, { onDelete: "cascade" }),
+    prerequisiteMilestoneId: text("prerequisite_milestone_id")
+      .notNull()
+      .references(() => roadmapMilestones.id, { onDelete: "cascade" }),
+    isBlocking: integer("is_blocking", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [unique().on(t.dependentMilestoneId, t.prerequisiteMilestoneId)],
+);
+
+export const roadmapCapabilityFeedback = sqliteTable(
+  "roadmap_capability_feedback",
+  {
+    id: text("id").primaryKey(),
+    capabilityId: text("capability_id")
+      .notNull()
+      .references(() => roadmapCapabilities.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    hasInterest: integer("has_interest", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    note: text("note"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => [unique().on(t.capabilityId, t.userId)],
+);
+
+export const schema = {
+  users,
+  songs,
+  roleAssignments,
+  labels,
+  songLabels,
+  roadmapPhases,
+  roadmapMilestones,
+  roadmapCapabilities,
+  roadmapDependencies,
+  roadmapCapabilityFeedback,
+};

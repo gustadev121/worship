@@ -9,9 +9,12 @@ export type D1Binding = Parameters<typeof drizzleD1>[0];
 // SQL-first migration, inlined at build time so request handlers never read
 // it from disk (no filesystem under workerd).
 import MIGRATION_SQL from "../../../drizzle/0001_init.sql?raw";
+import ROADMAP_MIGRATION_SQL from "../../../drizzle/0002_roadmap.sql?raw";
 
 function migrationStatements(): string[] {
-  return MIGRATION_SQL.split(";")
+  const allSql = `${MIGRATION_SQL};\n${ROADMAP_MIGRATION_SQL}`;
+  return allSql
+    .split(";")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 }

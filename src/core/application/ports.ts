@@ -1,4 +1,15 @@
 import type { Label } from "../domain/label";
+import type {
+  CapabilityFeedback,
+  CapabilityItem,
+  FunctionalTrack,
+  Milestone,
+  MilestoneStatus,
+  PhaseDependency,
+  PhaseStatus,
+  PriorityTier,
+  RoadmapPhase,
+} from "../domain/roadmap";
 import type { RoleAssignment, RoleType } from "../domain/role-assignment";
 import type { Song } from "../domain/song";
 import type { User, UserRole } from "../domain/user";
@@ -74,3 +85,57 @@ export interface YouTubeResult {
 export interface IYouTubeProviderPort {
   search(query: string, maxResults?: number): Promise<YouTubeResult[]>;
 }
+
+export interface CapabilityFilter {
+  milestoneId?: string;
+  functionalTrack?: FunctionalTrack;
+  priorityTier?: PriorityTier;
+}
+
+export interface RoadmapRepository {
+  listPhases(): Promise<RoadmapPhase[]>;
+  getPhase(id: string): Promise<RoadmapPhase | null>;
+  updatePhaseStatus(id: string, status: PhaseStatus): Promise<RoadmapPhase>;
+  listMilestones(phaseId?: string): Promise<Milestone[]>;
+  getMilestone(id: string): Promise<Milestone | null>;
+  updateMilestoneStatus(
+    id: string,
+    status: MilestoneStatus,
+    releaseNotes?: string | null,
+  ): Promise<Milestone>;
+  listCapabilities(filter?: {
+    milestoneId?: string;
+    functionalTrack?: FunctionalTrack;
+    priorityTier?: PriorityTier;
+  }): Promise<CapabilityItem[]>;
+  getCapability(id: string): Promise<CapabilityItem | null>;
+  listDependencies(milestoneId?: string): Promise<PhaseDependency[]>;
+  addDependency(
+    dependentMilestoneId: string,
+    prerequisiteMilestoneId: string,
+    isBlocking?: boolean,
+  ): Promise<PhaseDependency>;
+  listFeedback(capabilityId?: string): Promise<CapabilityFeedback[]>;
+  getUserFeedback(
+    capabilityId: string,
+    userId: string,
+  ): Promise<CapabilityFeedback | null>;
+  toggleVote(
+    capabilityId: string,
+    userId: string,
+    hasInterest: boolean,
+    note?: string | null,
+  ): Promise<{
+    feedback: CapabilityFeedback;
+    totalInterestCount: number;
+  }>;
+  seedBaseline(data: {
+    phases: RoadmapPhase[];
+    milestones: Milestone[];
+    capabilities: CapabilityItem[];
+    dependencies: PhaseDependency[];
+  }): Promise<void>;
+  isSeeded(): Promise<boolean>;
+}
+
+export type IRoadmapRepository = RoadmapRepository;

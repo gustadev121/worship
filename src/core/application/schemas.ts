@@ -129,3 +129,45 @@ export const songFilterQuerySchema = z.object({
 export const youtubeSearchSchema = z.object({
   q: z.string().min(1),
 });
+
+export const phaseStatusSchema = z.enum([
+  "PLANNED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "PENDING_PREREQUISITES",
+]);
+
+export const milestoneStatusSchema = z.enum([
+  "NOT_STARTED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "DEFERRED",
+]);
+
+export const priorityTierSchema = z.enum(["P1", "P2", "P3", "P4"]);
+
+export const functionalTrackSchema = z.enum([
+  "REPERTOIRE",
+  "PLANNING",
+  "ROSTERING",
+  "REHEARSAL",
+  "STAGE",
+]);
+
+export const updateMilestoneStatusSchema = z.object({
+  status: z.enum(["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "DEFERRED"]),
+  releaseNotes: z.string().max(2000).nullable().optional(),
+});
+
+export const toggleVoteSchema = z.object({
+  hasInterest: z.boolean(),
+  note: z.string().trim().max(280).nullable().optional(),
+});
+
+export const roadmapFilterSchema = z.object({
+  track: z
+    .enum(["REPERTOIRE", "PLANNING", "ROSTERING", "REHEARSAL", "STAGE"])
+    .optional(),
+  priority: z.enum(["P1", "P2", "P3", "P4"]).optional(),
+  phase: z.coerce.number().int().min(1).max(4).optional(),
+});

@@ -286,8 +286,17 @@ for (const a of ASSIGNMENTS) {
   assignmentCount++;
 }
 
+// Seed baseline roadmap
+await c.seedRoadmap.execute();
+const seededPhases = await c.roadmap.listPhases();
+const seededMilestones = await c.roadmap.listMilestones();
+const seededCapabilities = await c.roadmap.listCapabilities();
+
 await mf.dispose();
 
 console.log(
   `users=${byUsername.size} labels=${bySlug.size} songs=${songIds.length} assignments=${assignmentCount}`,
+);
+console.log(
+  `seeded roadmap_phases=${seededPhases.length} roadmap_milestones=${seededMilestones.length} roadmap_capabilities=${seededCapabilities.length}`,
 );

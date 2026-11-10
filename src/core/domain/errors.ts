@@ -1,9 +1,13 @@
 export class ValidationError extends Error {
   readonly code = "VALIDATION_ERROR";
+  readonly unmetPrerequisites?: string[];
+  readonly unmetPrerequisiteIds?: string[];
 
-  constructor(message: string) {
+  constructor(message: string, unmetPrerequisiteIds?: string[]) {
     super(message);
     this.name = "ValidationError";
+    this.unmetPrerequisites = unmetPrerequisiteIds;
+    this.unmetPrerequisiteIds = unmetPrerequisiteIds;
   }
 }
 

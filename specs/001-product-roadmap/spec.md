@@ -8,6 +8,14 @@
 
 **Input**: User description: "WorshipFlow Product Roadmap: define major milestones, priorities, and dependency phases"
 
+## Clarifications
+
+### Session 2026-11-09
+
+- Q: How should team member interest signals and feedback on upcoming roadmap capabilities be constrained per user? (FR-007) → A: Single vote toggle per user per capability (unique constraint), with an optional note that updates their existing submission.
+- Q: How should the baseline 4 roadmap phases and initial capability milestones be initialized in the system? (FR-001) → A: Automatically pre-seed the canonical 4 phases and baseline milestones upon system setup, editable by administrators.
+- Q: What export or presentation formats should the roadmap support for external ministry stakeholders? (FR-006) → A: In-app responsive view with print-optimized styling (browser print/PDF), no dedicated file generation pipeline in MVP.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Strategic Roadmap & Milestone Visibility (Priority: P1)
@@ -66,7 +74,7 @@ As a worship team volunteer (musician, singer, audio technician), I want to reco
 
 **Acceptance Scenarios**:
 
-1. **Given** an upcoming capability in Phase 2 or Phase 3, **When** a team member indicates "High Ministry Need" and submits a comment, **Then** the system records the feedback and increments the capability's interest tally.
+1. **Given** an upcoming capability in Phase 2 or Phase 3, **When** a team member toggles interest and optionally adds or updates a note, **Then** the system records or updates their unique single vote and refreshes the capability's interest tally.
 2. **Given** an administrator reviewing the roadmap, **When** they open a capability detail drawer, **Then** they can view aggregate volunteer interest counts and feedback submissions.
 
 ---
@@ -82,7 +90,7 @@ As a worship team volunteer (musician, singer, audio technician), I want to reco
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST structure the WorshipFlow Product Roadmap into 4 sequential phases with strict dependency ordering:
+- **FR-001**: The system MUST automatically pre-seed and structure the WorshipFlow Product Roadmap upon initial system setup into 4 sequential phases with strict dependency ordering, while allowing administrative customization:
   - **Phase 1: Repertoire & Rehearsal Foundation** (Delivered / Hardening): Song catalog management, multi-voice vocal and instrumental role assignments, YouTube video synchronization, practice status tracking (Pending, Practicing, Ready), custom repertoire labels, and secure role-based access.
   - **Phase 2: Service Planning & Setlist Management** (Immediate Next Priority): Creation of scheduled worship services, drag-and-drop song ordering in setlists, custom service order elements (prayers, scripture readings, welcomes), arrangement key and tempo transition guidance, and total service duration calculation.
   - **Phase 3: Volunteer Scheduling & Roster Management** (Dependent on Phase 2): Team member service invitations, role-specific position assignments, availability tracking and personal block-out dates, automated rehearsal reminder notifications, and ministry position coverage indicators.
@@ -95,8 +103,8 @@ As a worship team volunteer (musician, singer, audio technician), I want to reco
 - **FR-003**: The system MUST enforce dependency validation: downstream phases (Phase 2 → Phase 3 → Phase 4) MUST explicitly reference their upstream prerequisite milestones and cannot be marked as "Ready for Release" until all P1 Critical prerequisites in predecessor phases are completed.
 - **FR-004**: The system MUST calculate and display real-time progress metrics for each phase, including total capabilities, completed capabilities, percentage completed, and current operational status (Completed, In Progress, Pending Prerequisites, Deferred).
 - **FR-005**: The system MUST allow administrative users (`ADMIN` role) to create, edit, reorder, and update the status of roadmap phases, milestones, and capability items.
-- **FR-006**: The system MUST allow all authenticated users (`MEMBER` and `ADMIN`) to filter roadmap items by Priority, Phase, and Functional Track (Planning, Repertoire, Rostering, Rehearsal, Stage Presentation).
-- **FR-007**: The system MUST allow authenticated team members to express interest (vote) and submit structured comments on upcoming capabilities in pending phases.
+- **FR-006**: The system MUST allow all authenticated users (`MEMBER` and `ADMIN`) to filter roadmap items by Priority, Phase, and Functional Track (Planning, Repertoire, Rostering, Rehearsal, Stage Presentation), and MUST include print-optimized CSS layout for direct browser printing/PDF saving without dedicated server-side document pipelines.
+- **FR-007**: The system MUST allow authenticated team members to toggle interest (single vote per user per capability enforced via unique constraint) and optionally attach or update a short note; toggling off removes the vote and decrements the tally.
 - **FR-008**: The system MUST log an audit trail of milestone status updates and roadmap revisions, recording the updating actor, previous status, new status, and timestamp.
 
 ### Key Entities *(include if feature involves data)*
@@ -105,7 +113,7 @@ As a worship team volunteer (musician, singer, audio technician), I want to reco
 - **Milestone**: Represents a cohesive delivery checkpoint within a phase. Key attributes: phase reference, title, description, target completion date, completion status, and delivery owner.
 - **CapabilityItem**: Represents an individual feature deliverable belonging to a milestone. Key attributes: milestone reference, title, target persona, functional track, priority tier (P1-P4), acceptance criteria summary, interest score, and status.
 - **PhaseDependency**: Represents a directional dependency constraint connecting a dependent phase/milestone to its prerequisite phase/milestone.
-- **CapabilityFeedback**: Represents feedback or interest signals submitted by a team member for an upcoming capability. Key attributes: capability reference, user reference, priority perception, commentary, and submission date.
+- **CapabilityFeedback**: Represents feedback or interest signals submitted by a team member for an upcoming capability. Key attributes: capability reference, user reference (unique compound key: `[capabilityId, userId]`), interest boolean, optional note (max 280 characters), and last updated timestamp.
 
 ## Success Criteria *(mandatory)*
 

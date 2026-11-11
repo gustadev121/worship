@@ -33,7 +33,7 @@ export function MobileDock({
     (activePath.startsWith("/songs") && !activePath.includes("/practice"));
 
   const isPracticeActive = activePath.includes("/practice");
-  const isRoadmapActive = activePath.startsWith("/roadmap");
+  const isNewSongActive = activePath === "/songs/new";
 
   return (
     <nav
@@ -89,11 +89,11 @@ export function MobileDock({
           <span>Ensayo</span>
         </Link>
 
-        {/* 3. Roadmap */}
+        {/* 3. Nueva Canción */}
         <Link
-          href="/roadmap"
-          className={`wf-dock-item ${isRoadmapActive && !isDrawerOpen ? "wf-dock-item-active" : ""}`}
-          aria-current={isRoadmapActive && !isDrawerOpen ? "page" : undefined}
+          href="/songs/new"
+          className={`wf-dock-item ${isNewSongActive && !isDrawerOpen ? "wf-dock-item-active" : ""}`}
+          aria-current={isNewSongActive && !isDrawerOpen ? "page" : undefined}
         >
           <svg
             width="22"
@@ -106,11 +106,9 @@ export function MobileDock({
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path d="M18 6H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h13l4-3.5L18 6Z" />
-            <path d="M12 13v8" />
-            <path d="M12 3v3" />
+            <path d="M12 5v14M5 12h14" />
           </svg>
-          <span>Roadmap</span>
+          <span>Nueva</span>
         </Link>
 
         {/* 4. Más (Slide-Over Trigger) */}

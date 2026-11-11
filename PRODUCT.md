@@ -17,7 +17,7 @@ WorshipFlow exists to streamline church worship ministry operations by unifying 
 
 ## Positioning
 
-Unlike generic church management suites (e.g. Planning Center Services) or disconnected chord sheet apps (e.g. SongSelect, Ultimate Guitar), WorshipFlow integrates deep multi-part vocal/instrumental matrices with synchronized rehearsal media (ChordPro + YouTube playback + section markers) and a transparent community-driven ministry roadmap.
+Unlike generic church management suites (e.g. Planning Center Services) or disconnected chord sheet apps (e.g. SongSelect, Ultimate Guitar), WorshipFlow integrates deep multi-part vocal/instrumental matrices with synchronized rehearsal media (ChordPro + YouTube playback + section markers) and focused ministry preparation workflows.
 
 ## Operating Context
 
@@ -31,7 +31,7 @@ Unlike generic church management suites (e.g. Planning Center Services) or disco
 - **ChordPro Notation**: Chords-above-lyrics parsing with semitone transposition (+/- 12 semitones) and section markers (Verse, Chorus, Bridge, etc.).
 - **Part & Role Matrix**: Vocal roles (First Voice/Lead, Second Voice/High Harmony, Third Voice/Low Harmony, Backing Vocals) and Instrumental roles (Keyboard, Acoustic/Electric Guitar, Bass, Drums) with readiness states (`READY`, `PRACTICING`, `PENDING`).
 - **Synchronized Rehearsal Studio**: YouTube video sync with clickable section timestamps and hands-free auto-scrolling with wake lock.
-- **Strategic Product Roadmap**: 4 sequential phases (Phase 1: Foundation, Phase 2: Service Planning & Setlists, Phase 3: Volunteer Scheduling, Phase 4: Live Stage Mode) with volunteer feature voting.
+- **Strategic Product Roadmap**: Documented in `ROADMAP.md` covering 4 sequential phases (Phase 1: Foundation, Phase 2: Service Planning & Setlists, Phase 3: Volunteer Scheduling, Phase 4: Live Stage Mode).
 - **Technical Stack**: Bun runtime, Next.js / Vinext, SQLite / Drizzle ORM, Tailwind CSS v4, Shadcn UI primitives, Biome code quality.
 
 ## Brand Commitments
@@ -44,14 +44,14 @@ Unlike generic church management suites (e.g. Planning Center Services) or disco
 ## Evidence on Hand
 
 - Core Domain Models: `src/core/domain/chordpro.ts`, `src/core/domain/song.ts`, `src/core/domain/role-assignment.ts`.
-- Specifications: `specs/001-product-roadmap/spec.md`, `specs/002-design-system-ui/spec.md`.
+- Documentation: `ROADMAP.md`, `DESIGN.md`, `PRODUCT.md`.
 - Test Suites: 139 passing automated unit and integration tests (`tests/`).
 
 ## Product Principles
 
 1. **Rehearsal-First Reliability**: Stage and rehearsal interfaces must prioritize distraction-free legibility, rapid key transposition, and tablet screen-lock resilience over decorative complexity.
 2. **Clarity of Role & Readiness**: Every volunteer should know immediately what part they sing or play and whether their part is ready for Sunday.
-3. **Transparent Ministry Roadmap**: Feature evolution and phase dependencies are public and visible to the whole ministry team.
+3. **Focused Worship Workflows**: The software interface remains dedicated exclusively to music, rehearsal, and service preparation, free from administrative product backlog clutter.
 4. **Offline and Low-Light Readiness**: Default to low-glare dark mode that performs smoothly in dimly lit auditoriums.
 
 ## Accessibility & Inclusion

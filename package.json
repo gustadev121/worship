@@ -4,11 +4,14 @@
   "type": "module",
   "version": "0.1.0",
   "scripts": {
+    "build": "vite build",
     "build:vinext": "vite build",
     "check": "biome check .",
     "check:arch": "bun scripts/check-architecture.ts",
+    "dev": "vite dev",
     "dev:vinext": "vite dev",
     "seed": "bun scripts/seed.ts",
+    "start": "vinext start",
     "start:vinext": "vinext start",
     "test": "bun test",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"

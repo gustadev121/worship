@@ -97,7 +97,7 @@ padding: "1.25rem 1.5rem"
 
 WorshipFlow's design system is engineered for worship ministry practitioners in church environments. Built with a dark-first philosophy, it optimizes for low-light legibility on music stands, rapid chord transposition, and focused administrative planning without visual noise.
 
-- **Primary Mode**: Operate (catalog management, rehearsal studio, role assignment, roadmap).
+- **Primary Mode**: Operate (catalog management, rehearsal studio, role assignment).
 - **Core Technology**: Tailwind CSS v4 (@theme tokens), Shadcn UI primitives, Inter & Monospace typography.
 
 ## Colors

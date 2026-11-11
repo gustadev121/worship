@@ -124,14 +124,6 @@ export function DesktopNavbar({
           Catálogo
         </Link>
 
-        <Link
-          href="/roadmap"
-          className={`wf-nav-item ${isRouteActive("/roadmap") ? "wf-nav-item-active" : ""}`}
-          aria-current={isRouteActive("/roadmap") ? "page" : undefined}
-        >
-          Roadmap
-        </Link>
-
         {user && (
           <Link
             href="/songs/new"

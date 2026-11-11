@@ -295,7 +295,18 @@ export function SongForm({
             gap: "0.75rem",
           }}
         >
-          <span aria-hidden="true">⚠️</span>
+          <svg
+            className="w-5 h-5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
           <span>{error}</span>
         </div>
       )}
@@ -558,9 +569,22 @@ export function SongForm({
                           fontSize: "0.8125rem",
                           color: "var(--status-ready)",
                           fontWeight: 500,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.25rem",
                         }}
                       >
-                        ✓ Válido
+                        <svg
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          aria-hidden="true"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Válido</span>
                       </span>
                     </div>
                     <a
@@ -571,9 +595,24 @@ export function SongForm({
                         fontSize: "0.8125rem",
                         color: "var(--primary)",
                         textDecoration: "underline",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.25rem",
                       }}
                     >
-                      Abrir en YouTube ↗
+                      <span>Abrir en YouTube</span>
+                      <svg
+                        className="w-3.5 h-3.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
                     </a>
                   </div>
                 </div>
@@ -592,11 +631,20 @@ export function SongForm({
                     textAlign: "center",
                     padding: "1rem",
                     backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    gap: "0.5rem",
                   }}
                 >
-                  <span style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>
-                    📺
-                  </span>
+                  <svg
+                    className="w-6 h-6 opacity-60"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                    <polyline points="17 2 12 7 7 2" />
+                  </svg>
                   <span>
                     Introduce un enlace válido de YouTube para ver la miniatura.
                   </span>

@@ -428,16 +428,16 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
                     }}
                   >
                     {isSelected && (
-                      <span
-                        style={{
-                          color: "#ffffff",
-                          fontSize: "0.875rem",
-                          fontWeight: 700,
-                          textShadow: "0 1px 2px rgba(0,0,0,0.6)",
-                        }}
+                      <svg
+                        className="w-3.5 h-3.5 text-white drop-shadow-sm"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        aria-hidden="true"
                       >
-                        ✓
-                      </span>
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
                     )}
                   </button>
                 );
@@ -583,16 +583,16 @@ export function LabelAdmin({ initial }: { initial: AdminLabel[] }) {
                       }}
                     >
                       {isSelected && (
-                        <span
-                          style={{
-                            color: "#ffffff",
-                            fontSize: "0.875rem",
-                            fontWeight: 700,
-                            textShadow: "0 1px 2px rgba(0,0,0,0.6)",
-                          }}
+                        <svg
+                          className="w-3.5 h-3.5 text-white drop-shadow-sm"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          aria-hidden="true"
                         >
-                          ✓
-                        </span>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
                       )}
                     </button>
                   );

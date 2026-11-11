@@ -131,9 +131,23 @@ export function RoadmapFilters({
               fontSize: "0.8125rem",
               padding: "0.15rem 0.5rem",
               minHeight: "32px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.25rem",
             }}
           >
-            Limpiar filtros ✕
+            <span>Limpiar filtros</span>
+            <svg
+              className="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </Button>
         )}
       </div>
@@ -189,7 +203,18 @@ export function RoadmapFilters({
               }}
             >
               {t.label}
-              {isSelected && <span aria-hidden="true">✓</span>}
+              {isSelected && (
+                <svg
+                  className="w-3 h-3"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
             </button>
           );
         })}
@@ -244,15 +269,16 @@ export function RoadmapFilters({
                 {p.label}
               </Badge>
               {isSelected && (
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    color: "var(--primary)",
-                  }}
+                <svg
+                  className="w-3 h-3 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  aria-hidden="true"
                 >
-                  ✓
-                </span>
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
               )}
             </button>
           );

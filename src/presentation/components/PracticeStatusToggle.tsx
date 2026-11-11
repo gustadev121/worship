@@ -7,20 +7,22 @@ const STATUSES = [
   {
     value: "PENDING",
     label: "Pendiente",
-    icon: "○",
-    activeClass: "bg-slate-500/20 text-slate-300 border-slate-500/40",
+    activeClass: "bg-secondary text-foreground border-border font-semibold",
+    dotClass: "bg-muted-foreground",
   },
   {
     value: "PRACTICING",
     label: "Ensayando",
-    icon: "⋯",
-    activeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    activeClass:
+      "bg-amber-500/15 text-amber-300 border-amber-500/40 font-semibold",
+    dotClass: "bg-amber-400",
   },
   {
     value: "READY",
-    label: "Listo para Servicio",
-    icon: "✓",
-    activeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+    label: "Listo",
+    activeClass:
+      "bg-emerald-500/15 text-emerald-300 border-emerald-500/40 font-semibold",
+    dotClass: "bg-emerald-400",
   },
 ];
 
@@ -60,8 +62,8 @@ export function PracticeStatusToggle({
   }
 
   return (
-    <div className="practice-status-widget flex flex-wrap items-center gap-3 p-3 rounded-xl bg-card border border-border/80 shadow-xs">
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-card border border-border/80 shadow-xs">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-1">
         Tu Estado:
       </span>
 
@@ -74,13 +76,16 @@ export function PracticeStatusToggle({
               type="button"
               disabled={saving}
               onClick={() => change(s.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all active:scale-95 ${
+              className={`h-7 px-2.5 inline-flex items-center gap-1.5 rounded-md text-xs border transition-colors ${
                 isSelected
-                  ? `${s.activeClass} shadow-xs ring-1`
-                  : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground hover:bg-accent"
+                  ? s.activeClass
+                  : "bg-secondary/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-secondary/70"
               }`}
             >
-              <span className="mr-1">{s.icon}</span>
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${s.dotClass}`}
+                aria-hidden="true"
+              />
               <span>{s.label}</span>
             </button>
           );
@@ -88,13 +93,16 @@ export function PracticeStatusToggle({
       </div>
 
       {saving ? (
-        <span className="text-xs text-muted-foreground animate-pulse">
+        <span className="text-xs text-muted-foreground animate-pulse ml-1">
           Guardando...
         </span>
       ) : null}
 
       {error ? (
-        <span role="alert" className="text-xs text-destructive font-medium">
+        <span
+          role="alert"
+          className="text-xs text-destructive font-medium ml-1"
+        >
           {error}
         </span>
       ) : null}

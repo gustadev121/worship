@@ -6,13 +6,89 @@ import type { FunctionalTrack, PriorityTier } from "@/core/domain/roadmap";
 import { Badge } from "@/presentation/components/ui/badge";
 import { Button } from "@/presentation/components/ui/button";
 
-const TRACK_CONFIG: Record<FunctionalTrack, { label: string; icon: string }> = {
-  REPERTOIRE: { label: "Repertorio", icon: "🎵" },
-  PLANNING: { label: "Planificación", icon: "📋" },
-  ROSTERING: { label: "Roster / Turnos", icon: "👥" },
-  REHEARSAL: { label: "Ensayo", icon: "🎸" },
-  STAGE: { label: "Escenario / En Vivo", icon: "🎤" },
+const TRACK_CONFIG: Record<FunctionalTrack, { label: string }> = {
+  REPERTOIRE: { label: "Repertorio" },
+  PLANNING: { label: "Planificación" },
+  ROSTERING: { label: "Roster / Turnos" },
+  REHEARSAL: { label: "Ensayo" },
+  STAGE: { label: "Escenario / En Vivo" },
 };
+
+function TrackIcon({ track }: { track: FunctionalTrack }) {
+  switch (track) {
+    case "REPERTOIRE":
+      return (
+        <svg
+          className="w-3 h-3 opacity-80"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </svg>
+      );
+    case "PLANNING":
+      return (
+        <svg
+          className="w-3 h-3 opacity-80"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+        </svg>
+      );
+    case "ROSTERING":
+      return (
+        <svg
+          className="w-3 h-3 opacity-80"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+        </svg>
+      );
+    case "REHEARSAL":
+      return (
+        <svg
+          className="w-3 h-3 opacity-80"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        </svg>
+      );
+    case "STAGE":
+      return (
+        <svg
+          className="w-3 h-3 opacity-80"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+        </svg>
+      );
+  }
+}
 
 const PRIORITY_TIER_CONFIG: Record<
   PriorityTier,
@@ -219,7 +295,14 @@ export function VoteButton({
             boxShadow: hasVoted ? "var(--glow-indigo)" : "none",
           }}
         >
-          <span style={{ fontSize: "0.95rem" }}>{hasVoted ? "★" : "☆"}</span>
+          <svg
+            className={`w-3.5 h-3.5 ${hasVoted ? "fill-current" : "stroke-current fill-none"}`}
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
           <span>Interesado</span>
           <span
             style={{
@@ -250,7 +333,7 @@ export function VoteButton({
           aria-expanded={isEditingNote}
           style={{ fontSize: "0.78rem" }}
         >
-          {note ? "📝 Editar nota" : "💬 Nota"}
+          {note ? "Editar nota" : "Nota"}
         </Button>
       </div>
 
@@ -420,8 +503,12 @@ export function CapabilityCard({
             </Badge>
 
             {/* Functional Track Pill */}
-            <Badge variant="secondary" size="sm">
-              <span>{track.icon}</span>
+            <Badge
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 inline-flex items-center"
+            >
+              <TrackIcon track={capability.functionalTrack} />
               <span>{track.label}</span>
             </Badge>
 
@@ -435,7 +522,18 @@ export function CapabilityCard({
                 gap: "0.25rem",
               }}
             >
-              👤 {capability.targetPersona}
+              <svg
+                className="w-3 h-3 opacity-70"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>{capability.targetPersona}</span>
             </span>
 
             {/* Completion Status */}
@@ -444,8 +542,8 @@ export function CapabilityCard({
                 Entregado
               </Badge>
             ) : (
-              <Badge variant="secondary" size="sm">
-                ○ Planificado
+              <Badge variant="secondary" size="sm" dot>
+                Planificado
               </Badge>
             )}
           </div>

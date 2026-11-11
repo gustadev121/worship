@@ -48,8 +48,7 @@ export default async function PracticePage({
             </span>
           </nav>
 
-          <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-            <span className="text-primary">▶</span>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
             <span>{song.title}</span>
             <span className="text-sm font-normal text-muted-foreground">
               — {song.artist}

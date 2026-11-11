@@ -19,6 +19,32 @@ export interface AdminUser {
 type SortField = "username" | "email" | "role" | "createdAt";
 type SortDirection = "asc" | "desc";
 
+function SortIndicator({
+  field,
+  currentField,
+  direction,
+}: {
+  field: string;
+  currentField: string;
+  direction: "asc" | "desc";
+}) {
+  if (field !== currentField) return null;
+  return (
+    <svg
+      className={`w-3 h-3 inline-block ml-1 text-primary transition-transform ${
+        direction === "desc" ? "rotate-180" : ""
+      }`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden="true"
+    >
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  );
+}
+
 export function UserAdmin({
   initial,
   currentUserId,
@@ -306,34 +332,48 @@ export function UserAdmin({
                 onClick={() => handleSort("username")}
                 style={{ cursor: "pointer", userSelect: "none" }}
               >
-                Usuario{" "}
-                {sortField === "username" &&
-                  (sortDirection === "asc" ? "▲" : "▼")}
+                Usuario
+                <SortIndicator
+                  field="username"
+                  currentField={sortField}
+                  direction={sortDirection}
+                />
               </th>
               <th
                 className="wf-th"
                 onClick={() => handleSort("email")}
                 style={{ cursor: "pointer", userSelect: "none" }}
               >
-                Correo Electrónico{" "}
-                {sortField === "email" && (sortDirection === "asc" ? "▲" : "▼")}
+                Correo Electrónico
+                <SortIndicator
+                  field="email"
+                  currentField={sortField}
+                  direction={sortDirection}
+                />
               </th>
               <th
                 className="wf-th"
                 onClick={() => handleSort("role")}
                 style={{ cursor: "pointer", userSelect: "none" }}
               >
-                Rol{" "}
-                {sortField === "role" && (sortDirection === "asc" ? "▲" : "▼")}
+                Rol
+                <SortIndicator
+                  field="role"
+                  currentField={sortField}
+                  direction={sortDirection}
+                />
               </th>
               <th
                 className="wf-th"
                 onClick={() => handleSort("createdAt")}
                 style={{ cursor: "pointer", userSelect: "none" }}
               >
-                Creado{" "}
-                {sortField === "createdAt" &&
-                  (sortDirection === "asc" ? "▲" : "▼")}
+                Creado
+                <SortIndicator
+                  field="createdAt"
+                  currentField={sortField}
+                  direction={sortDirection}
+                />
               </th>
               <th className="wf-th" style={{ textAlign: "right" }}>
                 Acciones
@@ -649,11 +689,28 @@ export function UserAdmin({
                   padding: "0.75rem",
                   fontSize: "0.8125rem",
                   lineHeight: 1.45,
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.5rem",
                 }}
               >
-                <strong>⚠️ Aviso de elevación de rol:</strong> Al asignar el rol
-                ADMIN, este usuario tendrá control total para gestionar el
-                repertorio, usuarios y configuraciones de la plataforma.
+                <svg
+                  className="w-4 h-4 shrink-0 mt-0.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <div>
+                  <strong>Aviso de elevación de rol:</strong> Al asignar el rol
+                  ADMIN, este usuario tendrá control total para gestionar el
+                  repertorio, usuarios y configuraciones de la plataforma.
+                </div>
               </div>
             )}
 

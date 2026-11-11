@@ -22,11 +22,10 @@ const ROLE_LABELS: Record<string, string> = {
   FIRST_VOICE: "1ª Voz",
   SECOND_VOICE: "2ª Voz",
   THIRD_VOICE: "3ª Voz",
-  BACKING_VOCAL: "Coro",
+  BACKING_VOCAL: "Voces de apoyo",
   INSTRUMENT: "Instrumento",
 };
 
-// Popular worship keys highlighted first in quick-pick bar
 const PRIMARY_KEYS: readonly MusicalKey[] = [
   "G major",
   "D major",
@@ -62,7 +61,6 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
   const [mine, setMine] = useState(initialMine);
   const [showAllKeys, setShowAllKeys] = useState(false);
 
-  // Sync internal state when URL parameters change externally
   useEffect(() => {
     setQ(searchParams.get("q") ?? "");
     setPracticeKey(searchParams.get("practiceKey") ?? "");
@@ -120,7 +118,6 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
     [q, practiceKey, roleType, selectedLabels, mine, router],
   );
 
-  // Debounced search query sync (250ms delay)
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
@@ -159,7 +156,7 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
     applyFilters({ mine: next });
   };
 
-  const resetAllFilters = () => {
+  const clearAll = () => {
     setQ("");
     setPracticeKey("");
     setRoleType("");
@@ -175,357 +172,194 @@ export function SongFilters({ labels }: { labels: FilterLabel[] }) {
   const displayedKeys = showAllKeys ? MUSICAL_KEYS : PRIMARY_KEYS;
 
   return (
-    <div
-      className="wf-filters-sticky"
-      style={{
-        position: "sticky",
-        top: "64px",
-        zIndex: 30,
-        backgroundColor: "rgba(9, 13, 22, 0.95)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderBottom: "1px solid var(--border)",
-        padding: "1rem 0",
-        marginBottom: "1.5rem",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          maxWidth: "80rem",
-          margin: "0 auto",
-        }}
-      >
-        {/* Main Search and Quick Controls Bar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-          }}
-        >
-          {/* Debounced Search Text Input */}
-          <div
-            style={{
-              position: "relative",
-              flex: "1 1 280px",
-              minWidth: "220px",
-            }}
-          >
-            <span
-              style={{
-                position: "absolute",
-                left: "0.875rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--muted-foreground)",
-                pointerEvents: "none",
-                fontSize: "1rem",
-              }}
+    <div className="space-y-3 p-4 rounded-xl border border-border/80 bg-card/60 shadow-xs">
+      {/* Primary Search and Quick Filters */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        {/* Search Input with Vector SVG */}
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden="true"
             >
-              🔍
-            </span>
-            <input
-              type="search"
-              name="q"
-              placeholder="Buscar por título o artista..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="wf-input"
-              style={{
-                width: "100%",
-                height: "44px",
-                paddingLeft: "2.5rem",
-                paddingRight: q ? "2.5rem" : "1rem",
-                backgroundColor: "var(--input)",
-                border: "1px solid var(--input-border)",
-                borderRadius: "var(--radius-md)",
-                color: "var(--foreground)",
-                fontSize: "0.9375rem",
-                outline: "none",
-              }}
-              aria-label="Buscar canciones por título o artista"
-            />
-            {q ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setQ("");
-                  applyFilters({ q: "" });
-                }}
-                style={{
-                  position: "absolute",
-                  right: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--muted-foreground)",
-                  cursor: "pointer",
-                  fontSize: "1rem",
-                  padding: "0.25rem",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                aria-label="Limpiar búsqueda"
-              >
-                ✕
-              </button>
-            ) : null}
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
           </div>
-
-          {/* Role Type Filter Select */}
-          <div style={{ flex: "0 0 auto" }}>
-            <select
-              value={roleType}
-              onChange={(e) => {
-                const val = e.target.value;
-                setRoleType(val);
-                applyFilters({ roleType: val });
+          <input
+            type="search"
+            name="q"
+            placeholder="Buscar por título o artista..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="w-full h-9 pl-9 pr-8 text-xs rounded-lg bg-secondary/80 border border-border/80 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden transition-colors"
+            aria-label="Buscar canciones por título o artista"
+          />
+          {q ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQ("");
+                applyFilters({ q: "" });
               }}
-              className="wf-input"
-              style={{
-                height: "44px",
-                padding: "0 1rem",
-                backgroundColor: "var(--input)",
-                border: "1px solid var(--input-border)",
-                borderRadius: "var(--radius-md)",
-                color: "var(--foreground)",
-                fontSize: "0.875rem",
-                cursor: "pointer",
-              }}
-              aria-label="Filtrar por tipo de voz o instrumento"
+              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-muted-foreground hover:text-foreground"
+              aria-label="Limpiar búsqueda"
             >
-              <option value="">Todas las voces</option>
-              {ROLE_TYPES.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_LABELS[r] ?? r}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Mine Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleMine}
-            className={`wf-btn wf-btn-sm ${mine ? "wf-btn-primary" : "wf-btn-outline"}`}
-            style={{
-              height: "44px",
-              padding: "0 1rem",
-              fontSize: "0.875rem",
-            }}
-            aria-pressed={mine}
-          >
-            👤 Mis partes
-          </button>
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          ) : null}
         </div>
 
-        {/* Canonical Musical Key Selector Pills */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.375rem",
-            flexWrap: "wrap",
-            paddingTop: "0.25rem",
-          }}
-        >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "var(--muted-foreground)",
-              marginRight: "0.25rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+        {/* Role Type Filter Select */}
+        <div className="shrink-0">
+          <select
+            value={roleType}
+            onChange={(e) => {
+              const val = e.target.value;
+              setRoleType(val);
+              applyFilters({ roleType: val });
             }}
+            className="w-full sm:w-auto h-9 px-3 text-xs rounded-lg bg-secondary/80 border border-border/80 text-foreground focus:border-primary focus:outline-hidden transition-colors"
+            aria-label="Filtrar por tipo de voz o instrumento"
           >
-            Tono:
+            <option value="">Todas las partes</option>
+            {ROLE_TYPES.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABELS[r] ?? r}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Mine Toggle Button */}
+        <button
+          type="button"
+          onClick={toggleMine}
+          className={`h-9 px-3 inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold border transition-colors shrink-0 ${
+            mine
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-secondary/60 text-muted-foreground border-border/80 hover:text-foreground"
+          }`}
+          aria-pressed={mine}
+        >
+          <svg
+            className="w-3.5 h-3.5 opacity-80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>Mis partes</span>
+        </button>
+
+        {/* Clear All Filters Button */}
+        {hasActiveFilters ? (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="h-9 px-3 inline-flex items-center gap-1 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-transparent transition-colors shrink-0"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+            <span>Limpiar</span>
+          </button>
+        ) : null}
+      </div>
+
+      {/* Musical Key Selector Pills */}
+      <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-border/40">
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mr-1">
+          Tono:
+        </span>
+        {displayedKeys.map((k) => {
+          const isSelected = practiceKey === k;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => toggleKey(k)}
+              className={`h-6 px-2 rounded-md text-[11px] font-mono font-medium border transition-colors ${
+                isSelected
+                  ? "bg-chord-accent/20 text-chord-accent border-chord-accent/40 font-bold"
+                  : "bg-secondary/50 text-muted-foreground border-border/60 hover:text-foreground hover:bg-secondary"
+              }`}
+            >
+              {k}
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() => setShowAllKeys((prev) => !prev)}
+          className="h-6 px-2 text-[11px] font-medium text-primary hover:underline"
+        >
+          {showAllKeys ? "Menos" : "+ Todos"}
+        </button>
+      </div>
+
+      {/* Label Pills */}
+      {labels.length > 0 ? (
+        <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-border/40">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mr-1">
+            Etiquetas:
           </span>
-          {displayedKeys.map((k) => {
-            const isSelected = practiceKey === k;
+          {labels.map((lbl) => {
+            const isSelected = selectedLabels.includes(lbl.id);
             return (
               <button
-                key={k}
+                key={lbl.id}
                 type="button"
-                onClick={() => toggleKey(k)}
-                className={`wf-badge ${isSelected ? "wf-badge-key-practice" : "wf-badge-secondary"}`}
-                style={{
-                  cursor: "pointer",
-                  border: isSelected
-                    ? "1px solid var(--chord-accent-border)"
-                    : "1px solid var(--border)",
-                  fontSize: "0.75rem",
-                  padding: "0.3rem 0.6rem",
-                  transition: "all 0.15s ease",
-                  transform: isSelected ? "scale(1.05)" : "none",
-                }}
-                aria-pressed={isSelected}
+                onClick={() => toggleLabel(lbl.id)}
+                className={`h-6 px-2.5 rounded-full text-[11px] font-medium border transition-colors ${
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-secondary/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-secondary/70"
+                }`}
+                style={
+                  !isSelected && lbl.colorHex
+                    ? {
+                        borderColor: `${lbl.colorHex}50`,
+                        color: lbl.colorHex,
+                      }
+                    : undefined
+                }
               >
-                {k}
+                {lbl.name}
               </button>
             );
           })}
-          <button
-            type="button"
-            onClick={() => setShowAllKeys(!showAllKeys)}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--primary)",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              padding: "0.25rem 0.5rem",
-            }}
-          >
-            {showAllKeys ? "Ver menos tonos" : "+ Ver los 24 tonos"}
-          </button>
         </div>
-
-        {/* Repertoire Label Filter Badges */}
-        {labels.length > 0 ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                color: "var(--muted-foreground)",
-                marginRight: "0.25rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Etiquetas:
-            </span>
-            {labels.map((label) => {
-              const isSelected = selectedLabels.includes(label.id);
-              const customHex = label.colorHex;
-              return (
-                <button
-                  key={label.id}
-                  type="button"
-                  onClick={() => toggleLabel(label.id)}
-                  className="wf-badge"
-                  style={{
-                    cursor: "pointer",
-                    fontSize: "0.75rem",
-                    padding: "0.3rem 0.65rem",
-                    borderRadius: "9999px",
-                    border: isSelected
-                      ? `2px solid ${customHex ?? "var(--primary)"}`
-                      : "1px solid var(--border)",
-                    backgroundColor: isSelected
-                      ? customHex
-                        ? `${customHex}33`
-                        : "var(--primary)"
-                      : "var(--secondary)",
-                    color: isSelected
-                      ? (customHex ?? "#ffffff")
-                      : "var(--muted-foreground)",
-                    fontWeight: isSelected ? 700 : 500,
-                    transition: "all 0.15s ease",
-                  }}
-                  aria-pressed={isSelected}
-                >
-                  {isSelected ? "✓ " : ""}
-                  {label.name}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {/* Active Filters Summary & Reset Action */}
-        {hasActiveFilters ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "0.5rem",
-              paddingTop: "0.5rem",
-              borderTop: "1px dashed var(--border)",
-              flexWrap: "wrap",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                flexWrap: "wrap",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "0.8125rem",
-                  color: "var(--muted-foreground)",
-                }}
-              >
-                Filtros activos:
-              </span>
-              {q ? (
-                <span className="wf-badge wf-badge-sm wf-badge-outline">
-                  Texto: "{q}"
-                </span>
-              ) : null}
-              {practiceKey ? (
-                <span className="wf-badge wf-badge-sm wf-badge-key-practice">
-                  Tono: {practiceKey}
-                </span>
-              ) : null}
-              {roleType ? (
-                <span className="wf-badge wf-badge-sm wf-badge-secondary">
-                  Voz: {ROLE_LABELS[roleType] ?? roleType}
-                </span>
-              ) : null}
-              {mine ? (
-                <span className="wf-badge wf-badge-sm wf-badge-secondary">
-                  Solo mis partes
-                </span>
-              ) : null}
-              {selectedLabels.map((id) => {
-                const match = labels.find((l) => l.id === id);
-                return (
-                  <span
-                    key={id}
-                    className="wf-badge wf-badge-sm wf-badge-secondary"
-                  >
-                    🏷️ {match?.name ?? id}
-                  </span>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="wf-btn wf-btn-ghost wf-btn-sm"
-              style={{
-                color: "var(--destructive)",
-                fontSize: "0.8125rem",
-                padding: "0.25rem 0.5rem",
-              }}
-            >
-              Limpiar todos los filtros ✕
-            </button>
-          </div>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   );
 }

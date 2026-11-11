@@ -99,237 +99,58 @@ export default async function CatalogPage({
     assignmentCountsMap.set(ra.songId, current + 1);
   }
 
-  // Compute Catalog Statistics
-  const totalInCatalog = songs.length;
-  const transposedCount = songs.filter(
-    (s) => s.practiceKey && s.practiceKey !== s.originalKey,
-  ).length;
-  const totalAssignmentsCount = songs.reduce(
-    (acc, s) => acc + (assignmentCountsMap.get(s.id) ?? 0),
-    0,
-  );
-
   const isAdmin = session.role === "ADMIN";
   const hasActiveFilter = Boolean(
     sp.q || sp.labels || sp.practiceKey || sp.roleType || sp.mine === "1",
   );
 
   return (
-    <div
-      style={{
-        maxWidth: "80rem",
-        margin: "0 auto",
-        padding: "1.5rem 1rem 3rem 1rem",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1.5rem",
-      }}
-    >
-      <style>{`
-        .wf-catalog-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-        @media (min-width: 640px) {
-          .wf-catalog-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.25rem;
-          }
-        }
-        @media (min-width: 1024px) {
-          .wf-catalog-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-          }
-        }
-        .wf-stats-banner {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 1rem;
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-xl);
-          padding: 1.25rem;
-        }
-      `}</style>
-
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       {/* Catalog Header Section */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.625rem",
-              }}
-            >
-              <h1
-                style={{
-                  fontSize: "1.875rem",
-                  fontWeight: 800,
-                  letterSpacing: "-0.025em",
-                  color: "var(--foreground)",
-                  margin: 0,
-                }}
-              >
-                Repertorio de Alabanza
-              </h1>
-              <span
-                className="wf-badge wf-badge-secondary"
-                style={{
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  padding: "0.25rem 0.625rem",
-                }}
-              >
-                {totalInCatalog}{" "}
-                {totalInCatalog === 1 ? "canción" : "canciones"}
-              </span>
-            </div>
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "var(--muted-foreground)",
-                margin: "0.25rem 0 0 0",
-              }}
-            >
-              Explora, transpone y ensaya las canciones de la congregación con
-              tu equipo.
-            </p>
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Repertorio
+            </h1>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary text-muted-foreground border border-border/80">
+              {songs.length} {songs.length === 1 ? "canción" : "canciones"}
+            </span>
           </div>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Consulta, transpone y ensaya las canciones con el equipo.
+          </p>
         </div>
 
         {isAdmin ? (
-          <Link
-            href="/songs/new"
-            className="wf-btn wf-btn-primary"
-            style={{
-              fontWeight: 600,
-              padding: "0.5rem 1.25rem",
-              boxShadow: "var(--shadow-sm)",
-            }}
-          >
-            <span>+ Nueva Canción</span>
+          <Link href="/songs/new">
+            <button
+              type="button"
+              className="h-9 px-4 inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors shrink-0"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>Nueva Canción</span>
+            </button>
           </Link>
         ) : null}
       </header>
 
-      {/* Catalog Statistics Banner */}
-      <section
-        className="wf-stats-banner"
-        aria-label="Estadísticas del catálogo"
-      >
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-        >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--muted-foreground)",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
-          >
-            Total Canciones
-          </span>
-          <span
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              color: "var(--foreground)",
-            }}
-          >
-            {totalInCatalog}
-          </span>
-        </div>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-        >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--muted-foreground)",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
-          >
-            Tonos Adaptados
-          </span>
-          <span
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              color: "var(--chord-accent)",
-            }}
-          >
-            {transposedCount}
-          </span>
-        </div>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-        >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--muted-foreground)",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
-          >
-            Partes Asignadas
-          </span>
-          <span
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              color: "var(--role-member)",
-            }}
-          >
-            {totalAssignmentsCount}
-          </span>
-        </div>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-        >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--muted-foreground)",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
-          >
-            Etiquetas Temáticas
-          </span>
-          <span
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              color: "var(--role-admin)",
-            }}
-          >
-            {labels.length}
-          </span>
-        </div>
-      </section>
-
-      {/* Sticky Interactive Filters */}
+      {/* Interactive Filters */}
       <SongFilters labels={labels} />
 
-      {/* Catalog Grid of Spotlight Song Cards */}
+      {/* Catalog Grid */}
       {songs.length > 0 ? (
         <section
-          className="wf-catalog-grid"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           aria-label="Listado de canciones del catálogo"
         >
           {songs.map((song) => {
@@ -349,91 +170,45 @@ export default async function CatalogPage({
           })}
         </section>
       ) : (
-        /* Animated Empty Search State Card */
-        <div
-          className="wf-card"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            padding: "3.5rem 1.5rem",
-            backgroundColor: "var(--card)",
-            border: "1px dashed var(--border)",
-            borderRadius: "var(--radius-xl)",
-            gap: "1rem",
-            maxWidth: "36rem",
-            margin: "2rem auto",
-          }}
-        >
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "50%",
-              backgroundColor: "rgba(99, 102, 241, 0.12)",
-              color: "var(--primary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "1.75rem",
-            }}
-            aria-hidden="true"
-          >
-            🎵
+        /* Clean Empty State */
+        <div className="rounded-xl border border-dashed border-border/80 bg-card/40 p-10 text-center flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <svg
+              className="w-6 h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.375rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "1.25rem",
-                fontWeight: 700,
-                color: "var(--foreground)",
-                margin: 0,
-              }}
-            >
-              No encontramos canciones con esos filtros
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              No se encontraron canciones
             </h2>
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "var(--muted-foreground)",
-                margin: 0,
-                maxWidth: "28rem",
-              }}
-            >
+            <p className="text-xs text-muted-foreground mt-0.5">
               {hasActiveFilter
-                ? "Prueba seleccionando otro tono o limpiando los términos de búsqueda para ver más canciones."
-                : "Aún no hay canciones registradas en el catálogo de alabanza."}
+                ? "Prueba cambiando los filtros o la búsqueda."
+                : "No hay canciones registradas en el catálogo."}
             </p>
           </div>
           {hasActiveFilter ? (
             <Link
               href="/"
-              className="wf-btn wf-btn-primary"
-              style={{
-                marginTop: "0.5rem",
-                fontWeight: 600,
-                padding: "0.5rem 1.25rem",
-              }}
+              className="mt-1 h-8 px-3 inline-flex items-center text-xs font-semibold rounded-lg bg-secondary text-foreground hover:bg-secondary-hover border border-border/80 transition-colors"
             >
               Restablecer Filtros
             </Link>
           ) : isAdmin ? (
             <Link
               href="/songs/new"
-              className="wf-btn wf-btn-primary"
-              style={{
-                marginTop: "0.5rem",
-                fontWeight: 600,
-                padding: "0.5rem 1.25rem",
-              }}
+              className="mt-1 h-8 px-3 inline-flex items-center text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors"
             >
               Crear primera canción
             </Link>

@@ -4,11 +4,14 @@
   "type": "module",
   "version": "0.1.0",
   "scripts": {
+    "build": "vite build",
     "build:vinext": "vite build",
     "check": "biome check .",
     "check:arch": "bun scripts/check-architecture.ts",
+    "dev": "vite dev",
     "dev:vinext": "vite dev",
     "seed": "bun scripts/seed.ts",
+    "start": "vinext start",
     "start:vinext": "vinext start",
     "test": "bun test",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
@@ -28,11 +31,13 @@
     "@biomejs/biome": "^2.6.3",
     "@cloudflare/vite-plugin": "1",
     "@cloudflare/workers-types": "^5.20261025.1",
+    "@tailwindcss/vite": "^4.3.5",
     "@types/bun": "^1.4.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitejs/plugin-rsc": "^0.5.38",
+    "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "wrangler": "^4.152.0"
   }

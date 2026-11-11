@@ -1,49 +1,33 @@
 import type { RoadmapPrerequisiteDTO } from "@/core/application/dtos";
 import type { MilestoneStatus } from "@/core/domain/roadmap";
+import { Badge } from "@/presentation/components/ui/badge";
 
 export interface MilestoneStatusBadgeProps {
   status: MilestoneStatus;
   prerequisites?: RoadmapPrerequisiteDTO[];
 }
 
-const STATUS_CONFIG: Record<
-  MilestoneStatus,
-  { label: string; bg: string; color: string; border: string }
-> = {
-  COMPLETED: {
-    label: "Completado",
-    bg: "#dcfce7",
-    color: "#166534",
-    border: "#86efac",
-  },
-  IN_PROGRESS: {
-    label: "En progreso",
-    bg: "#dbeafe",
-    color: "#1e40af",
-    border: "#93c5fd",
-  },
-  NOT_STARTED: {
-    label: "No iniciado",
-    bg: "#f3f4f6",
-    color: "#374151",
-    border: "#d1d5db",
-  },
-  DEFERRED: {
-    label: "Pospuesto",
-    bg: "#fef3c7",
-    color: "#92400e",
-    border: "#fde68a",
-  },
+const STATUS_LABELS: Record<MilestoneStatus, string> = {
+  COMPLETED: "Completado",
+  IN_PROGRESS: "En progreso",
+  NOT_STARTED: "No iniciado",
+  DEFERRED: "Pospuesto",
 };
 
 export function MilestoneStatusBadge({
   status,
   prerequisites = [],
 }: MilestoneStatusBadgeProps) {
-  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.NOT_STARTED;
+  const label = STATUS_LABELS[status] ?? "No iniciado";
   const unmetBlockingPrereqs = prerequisites.filter(
     (p) => p.isBlocking && !p.isSatisfied,
   );
+
+  let variant: "statusReady" | "default" | "secondary" | "statusPracticing" =
+    "secondary";
+  if (status === "COMPLETED") variant = "statusReady";
+  else if (status === "IN_PROGRESS") variant = "default";
+  else if (status === "DEFERRED") variant = "statusPracticing";
 
   return (
     <div
@@ -54,23 +38,10 @@ export function MilestoneStatusBadge({
         gap: "0.5rem",
       }}
     >
-      <span
-        data-status={status}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          backgroundColor: config.bg,
-          color: config.color,
-          border: `1px solid ${config.border}`,
-          borderRadius: "9999px",
-          padding: "0.2rem 0.65rem",
-          fontSize: "0.75rem",
-          fontWeight: 600,
-          letterSpacing: "0.025em",
-          textTransform: "uppercase",
-        }}
-      >
-        {config.label}
+      <span data-status={status}>
+        <Badge variant={variant} size="sm" dot>
+          {label}
+        </Badge>
       </span>
 
       {unmetBlockingPrereqs.length > 0 && (
@@ -80,10 +51,10 @@ export function MilestoneStatusBadge({
             display: "inline-flex",
             alignItems: "center",
             gap: "0.25rem",
-            backgroundColor: "#fffbeb",
-            color: "#92400e",
-            border: "1px solid #fcd34d",
-            borderRadius: "9999px",
+            backgroundColor: "var(--status-practicing-bg)",
+            color: "var(--status-practicing)",
+            border: "1px solid var(--status-practicing-border)",
+            borderRadius: "var(--radius-full)",
             padding: "0.2rem 0.65rem",
             fontSize: "0.75rem",
             fontWeight: 600,
@@ -92,7 +63,19 @@ export function MilestoneStatusBadge({
             .map((p) => p.prerequisiteTitle)
             .join(", ")}
         >
-          <span>⚠️ Pending Upstream Prerequisites:</span>
+          <svg
+            className="w-3.5 h-3.5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <span>Prerrequisitos pendientes:</span>
           <span style={{ fontWeight: 400 }}>
             {unmetBlockingPrereqs.map((p) => p.prerequisiteTitle).join(", ")}
           </span>

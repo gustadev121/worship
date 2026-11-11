@@ -1,39 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { RoadmapPhaseDTO } from "@/core/application/dtos";
 import type { PhaseStatus } from "@/core/domain/roadmap";
 import { CapabilityCard } from "./CapabilityCard";
 import { MilestoneStatusBadge } from "./MilestoneStatusBadge";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader } from "./ui/card";
 
-const PHASE_STATUS_LABELS: Record<
+const PHASE_STATUS_MAP: Record<
   PhaseStatus,
-  { label: string; bg: string; color: string; border: string }
+  {
+    label: string;
+    variant: "statusReady" | "default" | "statusPracticing" | "secondary";
+  }
 > = {
-  COMPLETED: {
-    label: "Completada",
-    bg: "#dcfce7",
-    color: "#166534",
-    border: "#86efac",
-  },
-  IN_PROGRESS: {
-    label: "En Curso",
-    bg: "#dbeafe",
-    color: "#1e40af",
-    border: "#93c5fd",
-  },
+  COMPLETED: { label: "Completada", variant: "statusReady" },
+  IN_PROGRESS: { label: "En Curso", variant: "default" },
   PENDING_PREREQUISITES: {
     label: "Esperando Prerequisitos",
-    bg: "#fef3c7",
-    color: "#92400e",
-    border: "#fde68a",
+    variant: "statusPracticing",
   },
-  PLANNED: {
-    label: "Planificada",
-    bg: "#f3f4f6",
-    color: "#374151",
-    border: "#d1d5db",
-  },
+  PLANNED: { label: "Planificada", variant: "secondary" },
 };
 
 export interface RoadmapTimelineProps {
@@ -45,6 +34,13 @@ export function RoadmapTimeline({ phases }: RoadmapTimelineProps) {
   const [collapsedMilestones, setCollapsedMilestones] = useState<Set<string>>(
     new Set(),
   );
+
+  // Trigger smooth progress animation on mount
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   function toggleMilestone(milestoneId: string) {
     setCollapsedMilestones((prev) => {
@@ -78,104 +74,107 @@ export function RoadmapTimeline({ phases }: RoadmapTimelineProps) {
         width: "100%",
       }}
     >
+      {/* Controls row */}
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
           gap: "0.5rem",
         }}
       >
-        <button
-          type="button"
-          onClick={expandAll}
+        <span
           style={{
-            fontSize: "0.78rem",
-            padding: "0.25rem 0.6rem",
-            borderRadius: "4px",
-            border: "1px solid #d1d5db",
-            backgroundColor: "#ffffff",
-            color: "#374151",
-            cursor: "pointer",
+            fontSize: "0.875rem",
+            color: "var(--muted-foreground)",
+            fontWeight: 500,
           }}
         >
-          Expandir todos
-        </button>
-        <button
-          type="button"
-          onClick={collapseAll}
-          style={{
-            fontSize: "0.78rem",
-            padding: "0.25rem 0.6rem",
-            borderRadius: "4px",
-            border: "1px solid #d1d5db",
-            backgroundColor: "#ffffff",
-            color: "#374151",
-            cursor: "pointer",
-          }}
-        >
-          Colapsar todos
-        </button>
+          Visualizando 4 fases secuenciales de desarrollo ministerial
+        </span>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={expandAll}
+            style={{ fontSize: "0.8125rem", minHeight: "34px" }}
+          >
+            Expandir todos
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={collapseAll}
+            style={{ fontSize: "0.8125rem", minHeight: "34px" }}
+          >
+            Colapsar todos
+          </Button>
+        </div>
       </div>
 
       {phases.map((phase) => {
-        const statusConfig =
-          PHASE_STATUS_LABELS[phase.status] ?? PHASE_STATUS_LABELS.PLANNED;
+        const statusMeta =
+          PHASE_STATUS_MAP[phase.status] ?? PHASE_STATUS_MAP.PLANNED;
+        const targetPercent = phase.completionPercentage;
+        const currentPercent = isMounted ? targetPercent : 0;
 
         return (
-          <section
+          <Card
             key={phase.id}
             data-phase-id={phase.id}
+            variant="bordered"
             style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              backgroundColor: "#ffffff",
-              padding: "1.25rem",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.03)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.25rem",
+              overflow: "hidden",
+              position: "relative",
             }}
           >
-            {/* Phase Header */}
-            <div>
+            {/* Top phase indicator stripe */}
+            <div
+              style={{
+                height: "4px",
+                width: "100%",
+                backgroundColor:
+                  phase.status === "COMPLETED"
+                    ? "var(--status-ready)"
+                    : phase.status === "IN_PROGRESS"
+                      ? "var(--primary)"
+                      : "transparent",
+              }}
+            />
+
+            <CardHeader style={{ paddingBottom: "1rem" }}>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "flex-start",
                   flexWrap: "wrap",
-                  gap: "0.5rem",
-                  marginBottom: "0.4rem",
+                  gap: "0.75rem",
+                  marginBottom: "0.5rem",
                 }}
               >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.6rem",
+                    gap: "0.75rem",
                     flexWrap: "wrap",
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "0.75rem",
-                      fontWeight: 800,
-                      backgroundColor: "#1e293b",
-                      color: "#ffffff",
-                      borderRadius: "6px",
-                      padding: "0.2rem 0.55rem",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
+                  <Badge variant="default" size="md">
                     FASE {phase.phaseNumber}
-                  </span>
+                  </Badge>
 
                   <h3
                     style={{
                       margin: 0,
-                      fontSize: "1.2rem",
-                      fontWeight: 700,
-                      color: "#0f172a",
+                      fontSize: "1.375rem",
+                      fontWeight: 800,
+                      color: "var(--foreground)",
+                      letterSpacing: "-0.015em",
                     }}
                   >
                     {phase.name}
@@ -192,317 +191,280 @@ export function RoadmapTimeline({ phases }: RoadmapTimelineProps) {
                 >
                   <span
                     style={{
-                      fontSize: "0.78rem",
-                      color: "#4b5563",
-                      backgroundColor: "#f3f4f6",
-                      borderRadius: "9999px",
-                      padding: "0.2rem 0.6rem",
+                      fontSize: "0.8125rem",
+                      color: "var(--muted-foreground)",
+                      backgroundColor: "var(--muted)",
+                      borderRadius: "var(--radius-full)",
+                      padding: "0.25rem 0.75rem",
                       fontWeight: 500,
+                      border: "1px solid var(--border)",
                     }}
                   >
-                    🗓️ {phase.targetHorizon}
+                    <svg
+                      className="w-3.5 h-3.5 opacity-70"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span>{phase.targetHorizon}</span>
                   </span>
 
-                  <span
-                    style={{
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      backgroundColor: statusConfig.bg,
-                      color: statusConfig.color,
-                      border: `1px solid ${statusConfig.border}`,
-                      borderRadius: "9999px",
-                      padding: "0.2rem 0.6rem",
-                    }}
-                  >
-                    {statusConfig.label}
-                  </span>
+                  <Badge variant={statusMeta.variant} size="md" dot>
+                    {statusMeta.label}
+                  </Badge>
                 </div>
               </div>
 
               <p
                 style={{
-                  margin: "0.25rem 0 0.75rem 0",
-                  fontSize: "0.9rem",
-                  color: "#4b5563",
-                  lineHeight: 1.45,
+                  margin: "0.25rem 0 1rem 0",
+                  fontSize: "0.9375rem",
+                  color: "var(--muted-foreground)",
+                  lineHeight: 1.5,
                 }}
               >
                 {phase.description}
               </p>
 
-              {/* Progress Bar */}
+              {/* 4-Phase Animated Progress Bar */}
               <div>
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    fontSize: "0.78rem",
+                    fontSize: "0.8125rem",
                     fontWeight: 600,
-                    color: "#374151",
-                    marginBottom: "0.25rem",
+                    color: "var(--foreground)",
+                    marginBottom: "0.375rem",
                   }}
                 >
                   <span>Progreso de Fase</span>
-                  <span>{phase.completionPercentage}%</span>
+                  <span style={{ fontFamily: "var(--font-mono)" }}>
+                    {targetPercent}%
+                  </span>
                 </div>
                 <div
                   role="progressbar"
-                  aria-valuenow={phase.completionPercentage}
+                  aria-valuenow={targetPercent}
                   aria-valuemin={0}
                   aria-valuemax={100}
+                  aria-label={`Progreso de Fase ${phase.phaseNumber}: ${targetPercent}%`}
                   style={{
                     height: "10px",
                     width: "100%",
-                    backgroundColor: "#e5e7eb",
-                    borderRadius: "9999px",
+                    backgroundColor: "var(--muted)",
+                    borderRadius: "var(--radius-full)",
                     overflow: "hidden",
+                    border: "1px solid var(--border)",
                   }}
                 >
                   <div
                     style={{
                       height: "100%",
-                      width: `${phase.completionPercentage}%`,
+                      width: `${currentPercent}%`,
                       backgroundColor:
-                        phase.completionPercentage === 100
-                          ? "#16a34a"
-                          : "#2563eb",
-                      transition: "width 0.4s ease-in-out",
+                        targetPercent === 100
+                          ? "var(--status-ready)"
+                          : "var(--primary)",
+                      borderRadius: "var(--radius-full)",
+                      transition: "width 800ms cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow:
+                        phase.status === "IN_PROGRESS"
+                          ? "var(--glow-indigo)"
+                          : "none",
                     }}
                   />
                 </div>
               </div>
-            </div>
+            </CardHeader>
 
-            {/* Milestones in this phase */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-              }}
-            >
-              {phase.milestones.map((milestone) => {
-                const isCollapsed = collapsedMilestones.has(milestone.id);
+            <CardContent>
+              {/* Milestones Accordions */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
+                {phase.milestones.map((milestone) => {
+                  const isCollapsed = collapsedMilestones.has(milestone.id);
 
-                return (
-                  <div
-                    key={milestone.id}
-                    data-milestone-id={milestone.id}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "10px",
-                      backgroundColor: "#f8fafc",
-                      padding: "1rem",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    {/* Milestone Card Header */}
+                  return (
                     <div
+                      key={milestone.id}
+                      data-milestone-id={milestone.id}
                       style={{
+                        border: "1px solid var(--border)",
+                        borderRadius: "var(--radius-lg)",
+                        backgroundColor: "var(--card-elevated)",
+                        padding: "1rem",
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        flexWrap: "wrap",
-                        gap: "0.6rem",
+                        flexDirection: "column",
+                        gap: "0.875rem",
+                        boxShadow: "var(--shadow-sm)",
+                        transition: "border-color 0.15s ease",
                       }}
                     >
-                      <div style={{ flex: "1 1 280px" }}>
+                      {/* Milestone Header */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          flexWrap: "wrap",
+                          gap: "0.75rem",
+                        }}
+                      >
+                        <div style={{ flex: "1 1 280px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              flexWrap: "wrap",
+                              marginBottom: "0.35rem",
+                            }}
+                          >
+                            <h4
+                              style={{
+                                margin: 0,
+                                fontSize: "1.1rem",
+                                fontWeight: 700,
+                                color: "var(--foreground)",
+                              }}
+                            >
+                              {milestone.title}
+                            </h4>
+
+                            <MilestoneStatusBadge
+                              status={milestone.status}
+                              prerequisites={milestone.prerequisites}
+                            />
+                          </div>
+
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "0.875rem",
+                              color: "var(--muted-foreground)",
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            {milestone.description}
+                          </p>
+
+                          {milestone.releaseNotes && (
+                            <div
+                              style={{
+                                marginTop: "0.5rem",
+                                fontSize: "0.8125rem",
+                                backgroundColor: "var(--status-ready-bg)",
+                                color: "var(--foreground)",
+                                padding: "0.4rem 0.75rem",
+                                borderRadius: "var(--radius-md)",
+                                border: "1px solid var(--status-ready-border)",
+                              }}
+                            >
+                              <strong>Notas de versión:</strong>{" "}
+                              {milestone.releaseNotes}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Accordion Expand/Collapse Toggle */}
                         <div
                           style={{
                             display: "flex",
                             alignItems: "center",
                             gap: "0.5rem",
-                            flexWrap: "wrap",
-                            marginBottom: "0.25rem",
                           }}
                         >
-                          <h4
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => toggleMilestone(milestone.id)}
+                            aria-expanded={!isCollapsed}
+                            aria-controls={`milestone-content-${milestone.id}`}
                             style={{
-                              margin: 0,
-                              fontSize: "1.05rem",
-                              fontWeight: 700,
-                              color: "#1e293b",
-                            }}
-                          >
-                            {milestone.title}
-                          </h4>
-
-                          <MilestoneStatusBadge
-                            status={milestone.status}
-                            prerequisites={milestone.prerequisites}
-                          />
-                        </div>
-
-                        <p
-                          style={{
-                            margin: 0,
-                            fontSize: "0.85rem",
-                            color: "#64748b",
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {milestone.description}
-                        </p>
-
-                        {milestone.releaseNotes && (
-                          <div
-                            style={{
-                              marginTop: "0.4rem",
-                              fontSize: "0.78rem",
-                              backgroundColor: "#f1f5f9",
-                              color: "#334155",
-                              padding: "0.3rem 0.6rem",
-                              borderRadius: "4px",
-                              borderLeft: "3px solid #22c55e",
-                            }}
-                          >
-                            <strong>Notas de versión:</strong>{" "}
-                            {milestone.releaseNotes}
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => toggleMilestone(milestone.id)}
-                          aria-expanded={!isCollapsed}
-                          style={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            padding: "0.3rem 0.65rem",
-                            borderRadius: "6px",
-                            border: "1px solid #cbd5e1",
-                            backgroundColor: "#ffffff",
-                            color: "#1e293b",
-                            cursor: "pointer",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                          }}
-                        >
-                          <span>{isCollapsed ? "▼ Mostrar" : "▲ Ocultar"}</span>
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "#64748b",
-                            }}
-                          >
-                            ({milestone.capabilities.length})
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Prerequisite Links Summary */}
-                    {milestone.prerequisites.length > 0 && (
-                      <div
-                        style={{
-                          fontSize: "0.78rem",
-                          backgroundColor: "#f1f5f9",
-                          borderRadius: "6px",
-                          padding: "0.4rem 0.75rem",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.2rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontWeight: 700,
-                            color: "#475569",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.03em",
-                            fontSize: "0.72rem",
-                          }}
-                        >
-                          Prerrequisitos del Hito:
-                        </span>
-                        {milestone.prerequisites.map((prereq) => (
-                          <div
-                            key={prereq.prerequisiteMilestoneId}
-                            style={{
-                              display: "flex",
+                              fontSize: "0.8125rem",
+                              display: "inline-flex",
                               alignItems: "center",
-                              gap: "0.4rem",
-                              color: prereq.isSatisfied
-                                ? "#15803d"
-                                : prereq.isBlocking
-                                  ? "#b45309"
-                                  : "#64748b",
+                              gap: "0.35rem",
+                              minHeight: "34px",
                             }}
                           >
                             <span>
-                              {prereq.isSatisfied
-                                ? "✓"
-                                : prereq.isBlocking
-                                  ? "⚠️"
-                                  : "ℹ️"}
+                              {milestone.capabilities.length} capacidades
                             </span>
-                            <span>{prereq.prerequisiteTitle}</span>
-                            <span
+                            <svg
+                              className="w-3.5 h-3.5 transition-transform duration-200"
                               style={{
-                                fontSize: "0.7rem",
-                                opacity: 0.85,
+                                transform: isCollapsed
+                                  ? "rotate(-90deg)"
+                                  : "rotate(0deg)",
+                              }}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              aria-hidden="true"
+                            >
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Capabilities List inside Accordion */}
+                      {!isCollapsed && (
+                        <div
+                          id={`milestone-content-${milestone.id}`}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.75rem",
+                            marginTop: "0.25rem",
+                            paddingTop: "0.75rem",
+                            borderTop: "1px solid var(--border)",
+                          }}
+                        >
+                          {milestone.capabilities.length === 0 ? (
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: "0.85rem",
+                                color: "var(--muted-foreground)",
+                                fontStyle: "italic",
                               }}
                             >
-                              (
-                              {prereq.isBlocking ? "Bloqueante" : "Informativo"}
-                              {prereq.isSatisfied
-                                ? " — Satisfecho"
-                                : " — Pendiente"}
-                              )
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Capabilities List */}
-                    {!isCollapsed && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.6rem",
-                          paddingTop: "0.4rem",
-                        }}
-                      >
-                        {milestone.capabilities.length === 0 ? (
-                          <p
-                            style={{
-                              margin: "0.5rem 0",
-                              fontSize: "0.85rem",
-                              color: "#64748b",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            No hay capacidades en este hito que coincidan con
-                            los filtros seleccionados.
-                          </p>
-                        ) : (
-                          milestone.capabilities.map((capability) => (
-                            <CapabilityCard
-                              key={capability.id}
-                              capability={capability}
-                            />
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                              No hay capacidades asociadas con los filtros
+                              actuales.
+                            </p>
+                          ) : (
+                            milestone.capabilities.map((capability) => (
+                              <CapabilityCard
+                                key={capability.id}
+                                capability={capability}
+                              />
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         );
       })}
     </div>

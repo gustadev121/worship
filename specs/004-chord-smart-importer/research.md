@@ -7,6 +7,7 @@
 ## 1. Two-Line Chord Line Detection & Alignment Algorithm
 
 ### Context & Problem
+
 Musicians and worship leaders copy songs from sites like LaCuerda.net, Ultimate Guitar, Christian lyric blogs, or PDFs. In these sources, songs are formatted with chords on one line and lyrics on the line directly below:
 ```text
 G                D/F#            Em7          Cadd9
@@ -18,6 +19,7 @@ Intercalating brackets `[G]` manually around every syllable takes 5–10 minutes
 ```
 
 ### Research Findings & Decision
+
 - **Chord Line Heuristics**:
   1. A line is considered a **chord line** if >= 70% of its non-whitespace whitespace-separated tokens are valid musical chord representations, OR if all tokens are valid chords and musical symbols (e.g., `|`, `/`, `%`).
   2. A token is a valid chord if it matches Western notation (`A-G` with `#`/`b`, chord qualities `m`, `maj`, `min`, `dim`, `aug`, `sus`, `add`, `2`, `4`, `5`, `6`, `7`, `9`, `11`, `13`, and optional slash bass `/A-G[#b]?`) or Latin solfège (`Do`, `Re`, `Mi`, `Fa`, `Sol`, `La`, `Si`).
@@ -32,14 +34,15 @@ Intercalating brackets `[G]` manually around every syllable takes 5–10 minutes
   3. If the next line is ALSO a chord line (instrumental section like `[G] [D] [Em] [C]`) or the next line is empty:
      - Output the line formatted as spaced bracketed chords `[G] [D/F#] [Em7] [Cadd9]`.
 - **Alternatives Considered**:
-  - *Regex-only search/replace*: Inadequate because columns and spaces between chords indicate which syllable the chord falls on.
-  - *LLM / AI text conversion*: Unpredictable, introduces latency, requires API keys and network. A deterministic regex + column index algorithm is instantaneous (0ms), runs offline, and is 100% testable.
+  - _Regex-only search/replace_: Inadequate because columns and spaces between chords indicate which syllable the chord falls on.
+  - _LLM / AI text conversion_: Unpredictable, introduces latency, requires API keys and network. A deterministic regex + column index algorithm is instantaneous (0ms), runs offline, and is 100% testable.
 
 ---
 
 ## 2. Section Header & Directive Normalization
 
 ### Context & Problem
+
 Plain text charts indicate song sections in various non-standard ways:
 - `[Verso 1]`, `Verso 1:`, `VERSE 1`, `V1:`
 - `[CORO]`, `Coro:`, `Chorus`, `ESTRIBILLO:`
@@ -48,6 +51,7 @@ Plain text charts indicate song sections in various non-standard ways:
 - `Solo de Guitarra:`, `Instrumental:`
 
 ### Decision
+
 - Normalization mapping:
   - If a line is wrapped in brackets `[...]` or ends with `:`, or matches standard section keywords alone on a line, extract the clean section name.
   - Normalize to capitalized standard labels: `[Verso 1]`, `[Coro]`, `[Puente]`, `[Intro]`, `[Instrumental]`, `[Outro]`, `[Final]`.
@@ -58,12 +62,14 @@ Plain text charts indicate song sections in various non-standard ways:
 ## 3. Timestamp Extraction from Section Headers
 
 ### Context & Problem
+
 Musicians often note video timestamps in their song notes:
 - `[Verso 1 - 0:45]`
 - `Coro (1:30)`
 - `{comment: Puente 02:15}`
 
 ### Decision
+
 - Regular expression: `/\b(\d{1,2}):(\d{2})\b/`
 - When detected in a section header line:
   - Calculate `startSeconds = minutes * 60 + seconds`.
@@ -75,9 +81,11 @@ Musicians often note video timestamps in their song notes:
 ## 4. File Drag & Drop and Client-Side Parsing
 
 ### Context & Problem
+
 We want users to drag and drop `.chordpro`, `.cho`, `.pro`, and `.txt` files directly into the browser without uploading files to a server endpoint.
 
 ### Decision
+
 - Use standard HTML5 Drag & Drop API (`onDragOver`, `onDragLeave`, `onDrop`) and `<input type="file" accept=".chordpro,.cho,.pro,.txt,.chopro">`.
 - Use the Web API `FileReader.readAsText(file, "UTF-8")`.
 - Extract directives via standard regex:

@@ -30,6 +30,7 @@ Expected output:
 ## 2. Interactive UI Validation: Smart Paste
 
 1. Start development server:
+
    ```bash
    bun run dev
    ```
@@ -38,6 +39,7 @@ Expected output:
    `[⚡ Pegar texto clásico (acordes sobre letra)]`.
 4. Click the button to open the **Smart Paste Converter** modal.
 5. Paste the following test snippet into the raw text area:
+
    ```text
    [Intro]
    G  D/F#  Em7  Cadd9
@@ -69,6 +71,7 @@ Expected output:
 
 1. In the same form, locate the **Subir archivo de acordes** dropzone button.
 2. Prepare a test file named `amazing-grace.chordpro`:
+
    ```chordpro
    {title: Gracia Sublime}
    {artist: Phil Wickham}

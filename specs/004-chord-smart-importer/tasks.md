@@ -20,7 +20,7 @@
 
 **Purpose**: Define pure domain entities, value objects, and shared contracts for chord conversion and file importing.
 
-- [ ] T001 Define pure domain interfaces (`ChordToken`, `TwoLineConversionResult`, `ImportedSongMetadata`) in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/data-model.md`
+- [x] T001 Define pure domain interfaces (`ChordToken`, `TwoLineConversionResult`, `ImportedSongMetadata`) in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/data-model.md`
 
 ---
 
@@ -30,8 +30,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until the deterministic chord validation and line classification functions are in place.
 
-- [ ] T002 Implement `isValidChordToken(token)` and `isChordLine(line)` functions supporting Western (`A-G`) and Latin solfège (`Do-Si`) notations, slash chords (`D/F#`), extensions (`maj7`, `sus4`, `add9`), and Spanish prose disambiguation in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
-- [ ] T003 [P] Write unit tests for chord token validation and line classification covering valid chords, slash chords, solfège chords, Spanish prose words, and empty lines in `tests/unit/domain/chord-converter.test.ts`
+- [x] T002 Implement `isValidChordToken(token)` and `isChordLine(line)` functions supporting Western (`A-G`) and Latin solfège (`Do-Si`) notations, slash chords (`D/F#`), extensions (`maj7`, `sus4`, `add9`), and Spanish prose disambiguation in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
+- [x] T003 [P] Write unit tests for chord token validation and line classification covering valid chords, slash chords, solfège chords, Spanish prose words, and empty lines in `tests/unit/domain/chord-converter.test.ts`
 
 **Checkpoint**: Foundation ready — pure domain chord classification is fully tested and ready for converter algorithms.
 
@@ -45,13 +45,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Write unit tests for `convertTwoLineToChordPro` covering single verses, chorus alignment, consecutive chord lines (instrumental/intro), section headers, and column positioning in `tests/unit/domain/chord-converter.test.ts`
+- [x] T004 [P] [US1] Write unit tests for `convertTwoLineToChordPro` covering single verses, chorus alignment, consecutive chord lines (instrumental/intro), section headers, and column positioning in `tests/unit/domain/chord-converter.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `convertTwoLineToChordPro(rawText)` algorithm with column character tracking, syllable interleaving, and section header normalization in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
-- [ ] T006 [P] [US1] Create interactive modal component `SmartPasteModal` with raw text textarea, live ChordPro preview pane, statistics badges, and apply action in `src/presentation/components/rehearsal/smart-paste-modal.tsx`
-- [ ] T007 [US1] Integrate `SmartPasteModal` trigger button and state handler into `SongForm` in `src/app/songs/new/form.tsx`
+- [x] T005 [US1] Implement `convertTwoLineToChordPro(rawText)` algorithm with column character tracking, syllable interleaving, and section header normalization in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
+- [x] T006 [P] [US1] Create interactive modal component `SmartPasteModal` with raw text textarea, live ChordPro preview pane, statistics badges, and apply action in `src/presentation/components/rehearsal/smart-paste-modal.tsx`
+- [x] T007 [US1] Integrate `SmartPasteModal` trigger button and state handler into `SongForm` in `src/app/songs/new/form.tsx`
 
 **Checkpoint**: User Story 1 complete — musicians can paste classic two-line chord charts and convert them to ChordPro in 1 click (MVP ready).
 
@@ -65,13 +65,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T008 [P] [US2] Write unit tests for `extractChordProMetadata` covering standard directives (`{title}`, `{t}`, `{artist}`, `{a}`, `{key}`, `{tempo}`, `{time}`) and fallback plain text detection in `tests/unit/domain/chord-converter.test.ts`
+- [x] T008 [P] [US2] Write unit tests for `extractChordProMetadata` covering standard directives (`{title}`, `{t}`, `{artist}`, `{a}`, `{key}`, `{tempo}`, `{time}`) and fallback plain text detection in `tests/unit/domain/chord-converter.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Implement `extractChordProMetadata(fileContent)` in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
-- [ ] T010 [P] [US2] Create `FileDropzone` component with HTML5 drag-and-drop, native file input trigger, 500KB file size limit, and overwrite confirmation in `src/presentation/components/rehearsal/file-dropzone.tsx`
-- [ ] T011 [US2] Integrate `FileDropzone` into `SongForm` in `src/app/songs/new/form.tsx` to populate title, artist, originalKey, bpm, timeSignature, and lyricsAndChords
+- [x] T009 [US2] Implement `extractChordProMetadata(fileContent)` in `src/core/domain/chord-converter.ts` per `specs/004-chord-smart-importer/contracts/chord-converter.md`
+- [x] T010 [P] [US2] Create `FileDropzone` component with HTML5 drag-and-drop, native file input trigger, 500KB file size limit, and overwrite confirmation in `src/presentation/components/rehearsal/file-dropzone.tsx`
+- [x] T011 [US2] Integrate `FileDropzone` into `SongForm` in `src/app/songs/new/form.tsx` to populate title, artist, originalKey, bpm, timeSignature, and lyricsAndChords
 
 **Checkpoint**: User Stories 1 and 2 complete — both copy-pasting two-line chords and importing native ChordPro files work seamlessly.
 
@@ -85,8 +85,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T012 [P] [US3] Implement timestamp pattern recognition (`mm:ss`, `m:ss`) inside section headers, calculating total seconds and stripping timestamps from clean titles in `src/core/domain/chord-converter.ts`
-- [ ] T013 [US3] Connect extracted section timestamps from `SmartPasteModal` and `FileDropzone` into `SongForm` state in `src/app/songs/new/form.tsx`
+- [x] T012 [P] [US3] Implement timestamp pattern recognition (`mm:ss`, `m:ss`) inside section headers, calculating total seconds and stripping timestamps from clean titles in `src/core/domain/chord-converter.ts`
+- [x] T013 [US3] Connect extracted section timestamps from `SmartPasteModal` and `FileDropzone` into `SongForm` state in `src/app/songs/new/form.tsx`
 
 **Checkpoint**: All user stories complete — full intelligent chord importing with automatic metadata and rehearsal timestamp synchronization.
 
@@ -96,10 +96,10 @@
 
 **Purpose**: Architecture validation, code formatting, comprehensive test execution, and production build verification.
 
-- [ ] T014 [P] Run architecture check `bun run check:arch` and verify zero boundary violations
-- [ ] T015 [P] Run linter and formatting check `bun run check` across all modified files
-- [ ] T016 Run full automated test suite `bun test` verifying 100% tests passing including new unit tests
-- [ ] T017 Execute quickstart scenarios in `specs/004-chord-smart-importer/quickstart.md` and verify production build with `bun run build`
+- [x] T014 [P] Run architecture check `bun run check:arch` and verify zero boundary violations
+- [x] T015 [P] Run linter and formatting check `bun run check` across all modified files
+- [x] T016 Run full automated test suite `bun test` verifying 100% tests passing including new unit tests
+- [x] T017 Execute quickstart scenarios in `specs/004-chord-smart-importer/quickstart.md` and verify production build with `bun run build`
 
 ---
 

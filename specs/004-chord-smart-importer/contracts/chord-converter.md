@@ -7,6 +7,7 @@
 ## 1. Pure Domain API
 
 ### `isValidChordToken(token: string): boolean`
+
 Evaluates whether an individual string token represents a valid musical chord.
 
 - **Inputs**:
@@ -19,6 +20,7 @@ Evaluates whether an individual string token represents a valid musical chord.
   - Common Spanish words (`de`, `el`, `la`, `en`, `un`, `es`, `por`, `con`) MUST explicitly return `false`.
 
 ### `isChordLine(line: string): boolean`
+
 Determines if a plain text line contains only chords and whitespace.
 
 - **Inputs**:
@@ -30,6 +32,7 @@ Determines if a plain text line contains only chords and whitespace.
   - If >= 70% of non-empty whitespace-split tokens are valid chords, returns `true`.
 
 ### `convertTwoLineToChordPro(rawText: string): TwoLineConversionResult`
+
 Converts two-line formatted text (chords on top, lyrics underneath) into unified ChordPro bracket notation.
 
 - **Inputs**:
@@ -42,6 +45,7 @@ Converts two-line formatted text (chords on top, lyrics underneath) into unified
   - When consecutive chord lines appear (e.g. intro or instrumental), formats them as bracketed chords on one line `[G] [D] [Em] [C]`.
 
 ### `extractChordProMetadata(fileContent: string): ImportedSongMetadata`
+
 Extracts directives and body content from an uploaded `.chordpro`, `.cho`, or `.txt` file.
 
 - **Inputs**:

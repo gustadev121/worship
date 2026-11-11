@@ -7,6 +7,7 @@
 ## 1. Pure Domain Entities & Types (`src/core/domain/chord-converter.ts`)
 
 ### `ChordToken`
+
 Represents an isolated musical chord recognized on a chord line.
 ```typescript
 export interface ChordToken {
@@ -18,6 +19,7 @@ export interface ChordToken {
 ```
 
 ### `TwoLineConversionResult`
+
 The deterministic output from converting raw two-line text into ChordPro format.
 ```typescript
 export interface TwoLineConversionResult {
@@ -37,6 +39,7 @@ export interface TwoLineConversionResult {
 ```
 
 ### `ImportedSongMetadata`
+
 Parsed metadata from `.chordpro`, `.cho`, or `.txt` files containing directives.
 ```typescript
 export interface ImportedSongMetadata {
@@ -55,6 +58,7 @@ export interface ImportedSongMetadata {
 ## 2. Presentation Layer Contracts & State
 
 ### `SmartPasteModalProps`
+
 Props for the interactive conversion modal.
 ```typescript
 export interface SmartPasteModalProps {
@@ -70,6 +74,7 @@ export interface SmartPasteModalProps {
 ```
 
 ### `FileDropzoneProps`
+
 Props for the drag-and-drop file upload target.
 ```typescript
 export interface FileDropzoneProps {

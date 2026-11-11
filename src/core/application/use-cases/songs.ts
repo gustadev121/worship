@@ -25,9 +25,15 @@ function requireAdmin(actor: SessionPayload): void {
 export class GetSong {
   constructor(private readonly songs: ISongRepository) {}
 
-  async execute(input: { id: string }): Promise<{ song: Song }> {
+  async execute(input: {
+    id: string;
+    organizationId?: string;
+  }): Promise<{ song: Song }> {
     const song = await this.songs.findById(input.id);
     if (!song) {
+      throw new NotFoundError("Canción no encontrada");
+    }
+    if (input.organizationId && song.organizationId !== input.organizationId) {
       throw new NotFoundError("Canción no encontrada");
     }
     return { song };
@@ -63,8 +69,11 @@ export class CreateSong {
   }): Promise<{ song: Song }> {
     requireAdmin(input.actor);
     const now = new Date().toISOString();
+    const organizationId =
+      input.actor.activeOrganizationId || "worshipflow-central";
     const song = createSong({
       id: newId(),
+      organizationId,
       title: input.title,
       artist: input.artist,
       originalKey: input.originalKey,
@@ -93,6 +102,14 @@ export class UpdateSong {
     if (!existing) {
       throw new NotFoundError("Canción no encontrada");
     }
+    if (
+      input.actor.activeOrganizationId &&
+      existing.organizationId !== input.actor.activeOrganizationId
+    ) {
+      throw new ForbiddenError(
+        "No tiene permiso para modificar canciones de otra organización",
+      );
+    }
     return { song: await this.songs.update(updateSong(existing, input.patch)) };
   }
 }
@@ -102,6 +119,18 @@ export class DeleteSong {
 
   async execute(input: { actor: SessionPayload; id: string }): Promise<void> {
     requireAdmin(input.actor);
+    const existing = await this.songs.findById(input.id);
+    if (!existing) {
+      throw new NotFoundError("Canción no encontrada");
+    }
+    if (
+      input.actor.activeOrganizationId &&
+      existing.organizationId !== input.actor.activeOrganizationId
+    ) {
+      throw new ForbiddenError(
+        "No tiene permiso para eliminar canciones de otra organización",
+      );
+    }
     await this.songs.delete(input.id);
   }
 }

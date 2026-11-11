@@ -26,6 +26,9 @@ export async function GET(req: Request): Promise<Response> {
       return Response.json({ error: "Búsqueda inválida" }, { status: 400 });
     }
     const filter: SongFilter = {};
+    if (session.activeOrganizationId) {
+      filter.organizationId = session.activeOrganizationId;
+    }
     if (parsed.data.q !== undefined) {
       filter.query = parsed.data.q;
     }

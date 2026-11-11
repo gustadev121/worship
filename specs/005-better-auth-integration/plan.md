@@ -25,13 +25,13 @@ All music content (`songs`, `labels`, `roleAssignments`) will be linked to an `o
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Compliance Assessment | Status |
-|---|---|---|
-| **I. Clean Architecture Purity** | Better Auth and its adapter reside strictly in `src/infrastructure/auth/better-auth.ts` and `src/app/api/auth/`. Core layers (`src/core/domain` and `src/core/application`) import 0 external auth libraries and interact only through pure domain types and ports. | **PASS** |
-| **II. Unified D1 Persistence** | Better Auth uses Drizzle ORM configured exclusively for SQLite/D1 across development, test, and production. Zero schema or database engine drift. | **PASS** |
-| **III. Edge-First Isolation** | Better Auth edge-compatible bundle runs cleanly inside `workerd` without Node.js `fs`/`child_process` modules. Cloudflare D1 bindings are obtained via request env. | **PASS** |
-| **IV. Automated Architecture Gates** | Automated checks via `bun run check:arch`, `bun run check`, `bun test`, and `bun run build`. | **PASS** |
-| **V. Domain RBAC & Secure Identity** | Better Auth enforces password hashing, session expiration, and role assignments (`ADMIN`, `MEMBER`, `owner`, `admin`, `member`) verified in application use cases. | **PASS** |
+| Principle                            | Compliance Assessment                                                                                                                                                                                                                                               | Status   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| **I. Clean Architecture Purity**     | Better Auth and its adapter reside strictly in `src/infrastructure/auth/better-auth.ts` and `src/app/api/auth/`. Core layers (`src/core/domain` and `src/core/application`) import 0 external auth libraries and interact only through pure domain types and ports. | **PASS** |
+| **II. Unified D1 Persistence**       | Better Auth uses Drizzle ORM configured exclusively for SQLite/D1 across development, test, and production. Zero schema or database engine drift.                                                                                                                   | **PASS** |
+| **III. Edge-First Isolation**        | Better Auth edge-compatible bundle runs cleanly inside `workerd` without Node.js `fs`/`child_process` modules. Cloudflare D1 bindings are obtained via request env.                                                                                                 | **PASS** |
+| **IV. Automated Architecture Gates** | Automated checks via `bun run check:arch`, `bun run check`, `bun test`, and `bun run build`.                                                                                                                                                                        | **PASS** |
+| **V. Domain RBAC & Secure Identity** | Better Auth enforces password hashing, session expiration, and role assignments (`ADMIN`, `MEMBER`, `owner`, `admin`, `member`) verified in application use cases.                                                                                                  | **PASS** |
 
 ## Project Structure
 
@@ -94,12 +94,14 @@ tests/
 ## Phases
 
 ### Phase 0: Outline & Research
+
 - Evaluated Better Auth 1.7+ with Drizzle SQLite adapter against Cloudflare Workers D1.
 - Validated `organization()` plugin schema and session context injection.
 - Defined multi-tenant scoping strategy for songs and labels.
 - Output: [`specs/005-better-auth-integration/research.md`](file:///home/gustadev121/Workspace/Non-Profit/cjn/worship/specs/005-better-auth-integration/research.md)
 
 ### Phase 1: Design & Contracts
+
 - Defined complete Drizzle schema with 7 Better Auth/Organization tables and foreign keys in `data-model.md`.
 - Specified API routes and Application layer ports in `contracts/auth-and-organization.md`.
 - Authored runnable quickstart guide in `quickstart.md`.

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { ILabelRepository } from "@/core/application/ports";
 import { ConflictError } from "@/core/domain/errors";
 import type { Label } from "@/core/domain/label";
@@ -7,18 +7,30 @@ import { labels, songLabels } from "../db/schema";
 
 function toDomain(row: {
   id: string;
+  organizationId: string;
   name: string;
   slug: string;
   colorHex: string;
 }): Label {
-  return { id: row.id, name: row.name, slug: row.slug, colorHex: row.colorHex };
+  return {
+    id: row.id,
+    organizationId: row.organizationId || "worshipflow-central",
+    name: row.name,
+    slug: row.slug,
+    colorHex: row.colorHex,
+  };
 }
 
 export class DrizzleLabelRepository implements ILabelRepository {
   constructor(private readonly db: Db) {}
 
-  async list(): Promise<Label[]> {
-    const rows = await this.db.select().from(labels);
+  async list(organizationId?: string): Promise<Label[]> {
+    const rows = organizationId
+      ? await this.db
+          .select()
+          .from(labels)
+          .where(eq(labels.organizationId, organizationId))
+      : await this.db.select().from(labels);
     return rows.map(toDomain);
   }
 
@@ -28,18 +40,34 @@ export class DrizzleLabelRepository implements ILabelRepository {
     return row ? toDomain(row) : null;
   }
 
-  async findBySlug(slug: string): Promise<Label | null> {
-    const rows = await this.db
-      .select()
-      .from(labels)
-      .where(eq(labels.slug, slug));
+  async findBySlug(
+    slug: string,
+    organizationId?: string,
+  ): Promise<Label | null> {
+    const rows = organizationId
+      ? await this.db
+          .select()
+          .from(labels)
+          .where(
+            and(
+              eq(labels.slug, slug),
+              eq(labels.organizationId, organizationId),
+            ),
+          )
+      : await this.db.select().from(labels).where(eq(labels.slug, slug));
     const row = rows[0];
     return row ? toDomain(row) : null;
   }
 
   async create(label: Label): Promise<Label> {
     try {
-      await this.db.insert(labels).values(label);
+      await this.db.insert(labels).values({
+        id: label.id,
+        organizationId: label.organizationId || "worshipflow-central",
+        name: label.name,
+        slug: label.slug,
+        colorHex: label.colorHex,
+      });
     } catch (error) {
       if (isUniqueViolation(error)) {
         throw new ConflictError("Label slug already taken");

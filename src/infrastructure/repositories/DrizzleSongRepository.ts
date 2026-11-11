@@ -6,6 +6,7 @@ import { roleAssignments, songLabels, songs } from "../db/schema";
 
 interface SongRow {
   id: string;
+  organizationId: string;
   title: string;
   artist: string;
   originalKey: string;
@@ -34,6 +35,7 @@ function parseSections(raw: string): Song["sectionTimestamps"] {
 function toDomain(row: SongRow): Song {
   return {
     id: row.id,
+    organizationId: row.organizationId || "worshipflow-central",
     title: row.title,
     artist: row.artist,
     originalKey: row.originalKey as Song["originalKey"],
@@ -59,6 +61,9 @@ export class DrizzleSongRepository implements ISongRepository {
 
   async list(filter: SongFilter): Promise<Song[]> {
     const conditions: SQL[] = [];
+    if (filter.organizationId) {
+      conditions.push(eq(songs.organizationId, filter.organizationId));
+    }
     if (filter.query) {
       const pattern = `%${filter.query}%`;
       conditions.push(
@@ -105,6 +110,7 @@ export class DrizzleSongRepository implements ISongRepository {
   async create(song: Song): Promise<Song> {
     await this.db.insert(songs).values({
       id: song.id,
+      organizationId: song.organizationId || "worshipflow-central",
       title: song.title,
       artist: song.artist,
       originalKey: song.originalKey,

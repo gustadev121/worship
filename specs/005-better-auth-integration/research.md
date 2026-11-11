@@ -7,9 +7,11 @@
 ## 1. Better Auth with Drizzle ORM on Cloudflare D1
 
 ### Context & Problem
+
 WorshipFlow currently uses a custom PBKDF2 password hashing implementation and signed JWT session cookies via `jose`. We need to replace this with Better Auth (`better-auth`), a comprehensive, type-safe authentication library, while running inside Cloudflare Workers (`workerd`) backed by D1. Furthermore, we must add multi-tenant organization support and scope all songs, labels, and role assignments to an `organizationId`.
 
 ### Decision
+
 - **Core Library**: `better-auth` (version 1.7+).
 - **Drizzle Adapter**: `better-auth/adapters/drizzle` with SQLite provider.
 - **Organization Plugin**: Better Auth's official `organization()` server plugin and `organizationClient()` client plugin.
@@ -23,9 +25,11 @@ WorshipFlow currently uses a custom PBKDF2 password hashing implementation and s
 ## 2. Multi-Tenant Database Schema Design
 
 ### Context & Problem
+
 We need to support organizations (churches, campuses, ministries) and link all musical assets (`songs`, `labels`, `roleAssignments`) to a specific organization.
 
 ### Decision
+
 Better Auth requires the following tables:
 1. `user`: Core user entity (`id`, `name`, `email`, `emailVerified`, `image`, `role`, `createdAt`, `updatedAt`).
 2. `session`: Session records with `activeOrganizationId` column managed by the organization plugin.
@@ -45,9 +49,11 @@ Modifications to WorshipFlow Tables:
 ## 3. Session & Active Organization Context Flow
 
 ### Context & Problem
+
 How does the server and client know which organization is active?
 
 ### Decision
+
 - Better Auth's `organization()` plugin stores `activeOrganizationId` in the `session` record.
 - When an authenticated user calls `authClient.organization.setActive({ organizationId })`, Better Auth updates the session in D1 and sets a session cookie.
 - In Server Components (`src/app/page.tsx`, etc.), `getSession()` retrieves the active session including `session.activeOrganizationId`.
@@ -58,6 +64,7 @@ How does the server and client know which organization is active?
 ## 4. Clean Architecture Preservation
 
 ### Principle I Compliance
+
 - `src/core/domain`: Contains pure types: `Organization`, `OrganizationMember`, `User`, `Song`. 0 dependencies.
 - `src/core/application`: Ports (`IOrganizationRepository`, `ISongRepository`) accept `organizationId`. Use cases enforce tenant isolation.
 - `src/infrastructure/auth`: Houses `better-auth` configuration, Drizzle adapter, and plugins.

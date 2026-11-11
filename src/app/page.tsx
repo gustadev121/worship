@@ -34,6 +34,9 @@ export default async function CatalogPage({
   const container = await getContainer(await getRequestEnv());
 
   const filter: SongFilter = {};
+  if (session.activeOrganizationId) {
+    filter.organizationId = session.activeOrganizationId;
+  }
   if (sp.q) {
     filter.query = sp.q;
   }
@@ -66,7 +69,9 @@ export default async function CatalogPage({
   const [{ songs }, { labels }, allSongLabels, allAssignments] =
     await Promise.all([
       container.listSongs.execute({ filter }),
-      container.listLabels.execute(),
+      container.listLabels.execute({
+        organizationId: session.activeOrganizationId ?? undefined,
+      }),
       container.db.select().from(songLabels),
       container.db.select().from(roleAssignments),
     ]);

@@ -19,7 +19,10 @@ export async function GET(
   try {
     const { id } = await params;
     const container = await getContainer(await getRequestEnv());
-    const { song } = await container.getSong.execute({ id });
+    const { song } = await container.getSong.execute({
+      id,
+      organizationId: session.activeOrganizationId ?? undefined,
+    });
     return Response.json({ song });
   } catch (err) {
     return errorResponse(err);

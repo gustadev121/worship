@@ -9,6 +9,7 @@
 All requests under `/api/auth/*` are handled by `auth.handler(req)`.
 
 ### Authentication Endpoints
+
 - `POST /api/auth/sign-in/email`
   - Body: `{ email: string, password: string }`
   - Response: `{ user: User, session: Session }` + Sets `better-auth.session_token` cookie
@@ -23,6 +24,7 @@ All requests under `/api/auth/*` are handled by `auth.handler(req)`.
   - Response: `{ user: User, session: Session & { activeOrganizationId?: string } } | null`
 
 ### Organization Multi-Tenancy Endpoints
+
 - `POST /api/auth/organization/create`
   - Body: `{ name: string, slug: string, logo?: string }`
   - Response: `Organization` (assigns current user as `owner`)
@@ -44,16 +46,16 @@ All requests under `/api/auth/*` are handled by `auth.handler(req)`.
 
 ```typescript
 export interface SessionPayload {
-  readonly sub: string;                  // User ID
-  readonly username: string;             // User name / identifier
+  readonly sub: string; // User ID
+  readonly username: string; // User name / identifier
   readonly email: string;
-  readonly role: "ADMIN" | "MEMBER";     // Global system role
+  readonly role: "ADMIN" | "MEMBER"; // Global system role
   readonly activeOrganizationId: string | null;
   readonly organizationRole: "owner" | "admin" | "member" | null;
 }
 
 export interface SongFilter {
-  readonly organizationId?: string;      // Strict multi-tenant scope
+  readonly organizationId?: string; // Strict multi-tenant scope
   readonly query?: string;
   readonly labelIds?: readonly string[];
   readonly practiceKey?: string;

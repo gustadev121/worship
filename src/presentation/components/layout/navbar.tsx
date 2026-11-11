@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AnimatedGlow } from "../reactbits/animated-glow";
 import { Badge } from "../ui/badge";
+import { OrganizationSwitcher } from "./organization-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
 export interface SessionUser {
@@ -10,6 +11,13 @@ export interface SessionUser {
   name: string;
   email: string;
   role: "ADMIN" | "MEMBER";
+  activeOrganizationId?: string | null;
+  organizations?: readonly {
+    id: string;
+    name: string;
+    slug: string;
+    role?: string;
+  }[];
 }
 
 export interface NavbarProps {
@@ -150,12 +158,28 @@ export function DesktopNavbar({
             >
               Etiquetas
             </Link>
+            <Link
+              href="/admin/organization"
+              className={`wf-nav-item ${isRouteActive("/admin/organization") ? "wf-nav-item-active" : ""}`}
+              aria-current={
+                isRouteActive("/admin/organization") ? "page" : undefined
+              }
+            >
+              Sedes
+            </Link>
           </>
         )}
       </nav>
 
       {/* Utility Cluster (Right) */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        {user ? (
+          <OrganizationSwitcher
+            currentOrganizationId={user.activeOrganizationId ?? null}
+            organizations={user.organizations}
+          />
+        ) : null}
+
         <ThemeToggle />
 
         {user ? (
@@ -187,6 +211,21 @@ export function DesktopNavbar({
             >
               {initials}
             </div>
+
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                className="wf-btn wf-btn-ghost wf-btn-sm"
+                style={{
+                  fontSize: "0.75rem",
+                  padding: "0.25rem 0.5rem",
+                  cursor: "pointer",
+                }}
+                title="Cerrar sesión"
+              >
+                Salir
+              </button>
+            </form>
           </div>
         ) : (
           <Link

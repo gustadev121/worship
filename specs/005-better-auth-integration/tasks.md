@@ -1,6 +1,6 @@
 ---
-description: "Task list for Better Auth authentication and multi-tenant organization integration"
----
+
+## description: "Task list for Better Auth authentication and multi-tenant organization integration"
 
 # Tasks: Better Auth Authentication & Multi-Tenant Organization Integration
 
@@ -29,11 +29,11 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 **Purpose**: Dependency installation and core pure domain models
 
-- [ ] T001 Install `better-auth` dependency in package.json and run `bun install`
-- [ ] T002 [P] Create pure domain Organization and Member entities, types, and validators (`Organization`, `OrganizationMember`, `OrganizationInvitation`, `OrganizationRole: "owner" | "admin" | "member"`, `InvitationStatus: "pending" | "accepted" | "rejected" | "canceled"`) with 0 external imports in src/core/domain/organization.ts
-- [ ] T003 [P] Add `organizationId: string` field with non-empty validation to `Song` and `Label` domain models in src/core/domain/song.ts and src/core/domain/label.ts
-- [ ] T004 [P] Extend `SessionPayload` (`sub`, `username`, `email`, `role: "ADMIN" | "MEMBER"`, `activeOrganizationId: string | null`, `organizationRole: "owner" | "admin" | "member" | null`) and `SongFilter` (`organizationId?: string`) in src/core/application/ports.ts
-- [ ] T005 [P] Create Zod schemas for organization operations (`createOrganizationSchema`, `inviteMemberSchema`, `setActiveOrgSchema`) in src/core/application/schemas.ts
+- [x] T001 Install `better-auth` dependency in package.json and run `bun install`
+- [x] T002 [P] Create pure domain Organization and Member entities, types, and validators (`Organization`, `OrganizationMember`, `OrganizationInvitation`, `OrganizationRole: "owner" | "admin" | "member"`, `InvitationStatus: "pending" | "accepted" | "rejected" | "canceled"`) with 0 external imports in src/core/domain/organization.ts
+- [x] T003 [P] Add `organizationId: string` field with non-empty validation to `Song` and `Label` domain models in src/core/domain/song.ts and src/core/domain/label.ts
+- [x] T004 [P] Extend `SessionPayload` (`sub`, `username`, `email`, `role: "ADMIN" | "MEMBER"`, `activeOrganizationId: string | null`, `organizationRole: "owner" | "admin" | "member" | null`) and `SongFilter` (`organizationId?: string`) in src/core/application/ports.ts
+- [x] T005 [P] Create Zod schemas for organization operations (`createOrganizationSchema`, `inviteMemberSchema`, `setActiveOrgSchema`) in src/core/application/schemas.ts
 
 ---
 
@@ -43,12 +43,12 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create D1 raw migration SQL script in drizzle/0003_better_auth.sql defining `user`, `session`, `account`, `verification`, `organization`, `member`, `invitation` tables and adding `organization_id` foreign key columns to `songs` and `labels`
-- [ ] T007 Update Drizzle ORM schema in src/infrastructure/db/schema.ts defining `user` (`role: text("role").notNull().default("MEMBER")`, `emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false)`), `session` (`activeOrganizationId: text("active_organization_id")`, `userId` cascade delete), `account` (`password: text("password")`), `verification`, `organization` (`slug: text("slug").notNull().unique()`), `member` (`role: text("role").notNull().default("member")`), `invitation` (`status: text("status").notNull().default("pending")`, `role: text("role").notNull().default("member")`), and adding `organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" })` to `songs` and `labels`
-- [ ] T008 Update D1 database client and migration runner in src/infrastructure/db/client.ts to import `drizzle/0003_better_auth.sql?raw` and execute table migrations idempotently
-- [ ] T009 [P] Implement Better Auth server factory `getAuth(d1Binding, env)` in src/infrastructure/auth/better-auth.ts using Drizzle SQLite adapter and official `organization()` plugin
-- [ ] T010 [P] Create client-side Better Auth SDK client instance `authClient` in src/infrastructure/auth/auth-client.ts using `createAuthClient` and `organizationClient()` plugin
-- [ ] T011 Create universal Better Auth catch-all API route handler in src/app/api/auth/[...all]/route.ts dispatching all incoming requests to `getAuth(db, env).handler(req)`
+- [x] T006 Create D1 raw migration SQL script in drizzle/0003_better_auth.sql defining `user`, `session`, `account`, `verification`, `organization`, `member`, `invitation` tables and adding `organization_id` foreign key columns to `songs` and `labels`
+- [x] T007 Update Drizzle ORM schema in src/infrastructure/db/schema.ts defining `user` (`role: text("role").notNull().default("MEMBER")`, `emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false)`), `session` (`activeOrganizationId: text("active_organization_id")`, `userId` cascade delete), `account` (`password: text("password")`), `verification`, `organization` (`slug: text("slug").notNull().unique()`), `member` (`role: text("role").notNull().default("member")`), `invitation` (`status: text("status").notNull().default("pending")`, `role: text("role").notNull().default("member")`), and adding `organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" })` to `songs` and `labels`
+- [x] T008 Update D1 database client and migration runner in src/infrastructure/db/client.ts to import `drizzle/0003_better_auth.sql?raw` and execute table migrations idempotently
+- [x] T009 [P] Implement Better Auth server factory `getAuth(d1Binding, env)` in src/infrastructure/auth/better-auth.ts using Drizzle SQLite adapter and official `organization()` plugin
+- [x] T010 [P] Create client-side Better Auth SDK client instance `authClient` in src/infrastructure/auth/auth-client.ts using `createAuthClient` and `organizationClient()` plugin
+- [x] T011 Create universal Better Auth catch-all API route handler in src/app/api/auth/[...all]/route.ts dispatching all incoming requests to `getAuth(db, env).handler(req)`
 
 **Checkpoint**: Foundation ready - Better Auth endpoints and D1 schema are live. User stories can proceed.
 
@@ -62,15 +62,15 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] Create integration tests for credentials signup, login, session token validation, and logout in tests/integration/auth-better-auth.test.ts
+- [x] T012 [P] [US1] Create integration tests for credentials signup, login, session token validation, and logout in tests/integration/auth-better-auth.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Refactor server session resolver `getSession()` in src/presentation/auth.ts to verify sessions using `getAuth(db, env).api.getSession({ headers })` and return standard `SessionPayload`
-- [ ] T014 [US1] Adapt DI container in src/infrastructure/container.ts to support Better Auth session resolution while maintaining backward compatibility for service boundaries
-- [ ] T015 [US1] Update login page in src/app/login/page.tsx to use `authClient.signIn.email` with input validation, error handling, loading states, and redirect to `/`
-- [ ] T016 [US1] Update logout action in src/presentation/components/layout/navbar.tsx and src/presentation/components/layout/mobile-dock.tsx using `authClient.signOut` to revoke session
-- [ ] T017 [US1] Enforce role-based access control (`ADMIN` vs `MEMBER`) from Better Auth session in protected pages src/app/admin/users/page.tsx, src/app/admin/labels/page.tsx, and src/app/songs/new/page.tsx
+- [x] T013 [US1] Refactor server session resolver `getSession()` in src/presentation/auth.ts to verify sessions using `getAuth(db, env).api.getSession({ headers })` and return standard `SessionPayload`
+- [x] T014 [US1] Adapt DI container in src/infrastructure/container.ts to support Better Auth session resolution while maintaining backward compatibility for service boundaries
+- [x] T015 [US1] Update login page in src/app/login/page.tsx to use `authClient.signIn.email` with input validation, error handling, loading states, and redirect to `/`
+- [x] T016 [US1] Update logout action in src/presentation/components/layout/navbar.tsx and src/presentation/components/layout/mobile-dock.tsx using `authClient.signOut` to revoke session
+- [x] T017 [US1] Enforce role-based access control (`ADMIN` vs `MEMBER`) from Better Auth session in protected pages src/app/admin/users/page.tsx, src/app/admin/labels/page.tsx, and src/app/songs/new/page.tsx
 
 **Checkpoint**: User Story 1 MVP complete. Users can authenticate, maintain sessions in D1, and have roles enforced.
 
@@ -84,18 +84,18 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Create integration tests for multi-tenant song isolation and organization switching in tests/integration/auth-organization.test.ts
+- [x] T018 [P] [US2] Create integration tests for multi-tenant song isolation and organization switching in tests/integration/auth-organization.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Update `DrizzleSongRepository` in src/infrastructure/repositories/DrizzleSongRepository.ts to strictly filter by `organizationId` in `list()`, `findById()`, and require `organizationId` in `create()`
-- [ ] T020 [US2] Update `DrizzleLabelRepository` in src/infrastructure/repositories/DrizzleLabelRepository.ts to filter and persist labels by `organizationId`
-- [ ] T021 [US2] Update song application use cases in src/core/application/use-cases/songs.ts to accept and enforce `organizationId` tenant isolation
-- [ ] T022 [US2] Update label application use cases in src/core/application/use-cases/labels.ts to accept and enforce `organizationId` tenant isolation
-- [ ] T023 [US2] Update song and label API routes in src/app/api/songs/route.ts, src/app/api/songs/[id]/route.ts, and src/app/api/labels/route.ts to extract `activeOrganizationId` from session
-- [ ] T024 [US2] Create `OrganizationSwitcher` dropdown component in src/presentation/components/layout/organization-switcher.tsx supporting active org selection via `authClient.organization.setActive` and modal trigger
-- [ ] T025 [US2] Integrate `OrganizationSwitcher` into navigation bar in src/presentation/components/layout/navbar.tsx and mobile drawer in src/presentation/components/layout/more-drawer.tsx
-- [ ] T026 [US2] Update catalog page in src/app/page.tsx and song creation form in src/app/songs/new/form.tsx to pass `activeOrganizationId` to queries and mutations
+- [x] T019 [US2] Update `DrizzleSongRepository` in src/infrastructure/repositories/DrizzleSongRepository.ts to strictly filter by `organizationId` in `list()`, `findById()`, and require `organizationId` in `create()`
+- [x] T020 [US2] Update `DrizzleLabelRepository` in src/infrastructure/repositories/DrizzleLabelRepository.ts to filter and persist labels by `organizationId`
+- [x] T021 [US2] Update song application use cases in src/core/application/use-cases/songs.ts to accept and enforce `organizationId` tenant isolation
+- [x] T022 [US2] Update label application use cases in src/core/application/use-cases/labels.ts to accept and enforce `organizationId` tenant isolation
+- [x] T023 [US2] Update song and label API routes in src/app/api/songs/route.ts, src/app/api/songs/[id]/route.ts, and src/app/api/labels/route.ts to extract `activeOrganizationId` from session
+- [x] T024 [US2] Create `OrganizationSwitcher` dropdown component in src/presentation/components/layout/organization-switcher.tsx supporting active org selection via `authClient.organization.setActive` and modal trigger
+- [x] T025 [US2] Integrate `OrganizationSwitcher` into navigation bar in src/presentation/components/layout/navbar.tsx and mobile drawer in src/presentation/components/layout/more-drawer.tsx
+- [x] T026 [US2] Update catalog page in src/app/page.tsx and song creation form in src/app/songs/new/form.tsx to pass `activeOrganizationId` to queries and mutations
 
 **Checkpoint**: User Story 2 complete. Music catalog and labels are isolated per organization. Switcher updates active context seamlessly.
 
@@ -109,14 +109,14 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 ### Tests for User Story 3
 
-- [ ] T027 [P] [US3] Create integration tests for organization creation, invitations, and membership acceptance in tests/integration/organization-management.test.ts
+- [x] T027 [P] [US3] Create integration tests for organization creation, invitations, and membership acceptance in tests/integration/organization-management.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Define `IOrganizationRepository` port in src/core/application/ports.ts and implement `DrizzleOrganizationRepository` in src/infrastructure/repositories/DrizzleOrganizationRepository.ts
-- [ ] T029 [US3] Implement organization use cases (`CreateOrganizationUseCase`, `ListUserOrganizationsUseCase`, `InviteMemberUseCase`, `AcceptInvitationUseCase`) in src/core/application/use-cases/organizations.ts
-- [ ] T030 [US3] Create organization creation and member invitation modal in src/presentation/components/organization/organization-modal.tsx
-- [ ] T031 [US3] Create organization administration view in src/app/admin/organization/page.tsx for managing church campuses, team members, and invitation statuses
+- [x] T028 [US3] Define `IOrganizationRepository` port in src/core/application/ports.ts and implement `DrizzleOrganizationRepository` in src/infrastructure/repositories/DrizzleOrganizationRepository.ts
+- [x] T029 [US3] Implement organization use cases (`CreateOrganizationUseCase`, `ListUserOrganizationsUseCase`, `InviteMemberUseCase`, `AcceptInvitationUseCase`) in src/core/application/use-cases/organizations.ts
+- [x] T030 [US3] Create organization creation and member invitation modal in src/presentation/components/organization/organization-modal.tsx
+- [x] T031 [US3] Create organization administration view in src/app/admin/organization/page.tsx for managing church campuses, team members, and invitation statuses
 
 **Checkpoint**: User Story 3 complete. Full organization provisioning and invitation lifecycle functional.
 
@@ -130,8 +130,8 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] Configure Google OAuth provider in Better Auth server factory in src/infrastructure/auth/better-auth.ts using `env.GOOGLE_CLIENT_ID` and `env.GOOGLE_CLIENT_SECRET`
-- [ ] T033 [US4] Add "Continuar con Google" button in src/app/login/page.tsx calling `authClient.signIn.social({ provider: "google" })`
+- [x] T032 [US4] Configure Google OAuth provider in Better Auth server factory in src/infrastructure/auth/better-auth.ts using `env.GOOGLE_CLIENT_ID` and `env.GOOGLE_CLIENT_SECRET`
+- [x] T033 [US4] Add "Continuar con Google" button in src/app/login/page.tsx calling `authClient.signIn.social({ provider: "google" })`
 
 **Checkpoint**: User Story 4 complete. Social authentication functional.
 
@@ -141,9 +141,9 @@ description: "Task list for Better Auth authentication and multi-tenant organiza
 
 **Purpose**: Update seeds, migrate existing test fixtures to include `organizationId`, and verify all architectural gates
 
-- [ ] T034 Update database seed script in scripts/seed.ts to provision default organization `"WorshipFlow Central"` (`slug: "worshipflow-central"`), default admin/member users, and link all seed songs and labels to this organization
-- [ ] T035 Update existing unit and integration test fixtures in tests/integration/repositories.test.ts and tests/unit/application/use-cases.test.ts with valid `organizationId`
-- [ ] T036 Run automated quality and architecture gates (`bun run check:arch`, `bun run check`, `bun test`, `bun run build`) and verify 100% pass rate
+- [x] T034 Update database seed script in scripts/seed.ts to provision default organization `"WorshipFlow Central"` (`slug: "worshipflow-central"`), default admin/member users, and link all seed songs and labels to this organization
+- [x] T035 Update existing unit and integration test fixtures in tests/integration/repositories.test.ts and tests/unit/application/use-cases.test.ts with valid `organizationId`
+- [x] T036 Run automated quality and architecture gates (`bun run check:arch`, `bun run check`, `bun test`, `bun run build`) and verify 100% pass rate
 
 ---
 

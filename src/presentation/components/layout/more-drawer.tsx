@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import type { SessionUser } from "./navbar";
+import { OrganizationSwitcher } from "./organization-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
 export interface MoreDrawerProps {
@@ -72,65 +73,73 @@ export function MoreDrawer({
 
         {/* User Profile Card */}
         {user ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              padding: "0.75rem 1rem",
-              backgroundColor: "var(--card-elevated)",
-              borderRadius: "var(--radius-lg)",
-              border: "1px solid var(--border)",
-            }}
-          >
+          <>
             <div
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: "var(--radius-full)",
-                backgroundColor: "var(--primary)",
-                color: "#ffffff",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: "1.125rem",
+                gap: "1rem",
+                padding: "0.75rem 1rem",
+                backgroundColor: "var(--card-elevated)",
+                borderRadius: "var(--radius-lg)",
+                border: "1px solid var(--border)",
               }}
             >
-              {initials}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  color: "var(--foreground)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  width: 48,
+                  height: 48,
+                  borderRadius: "var(--radius-full)",
+                  backgroundColor: "var(--primary)",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 700,
+                  fontSize: "1.125rem",
                 }}
               >
-                {user.name}
+                {initials}
               </div>
-              <div
-                style={{
-                  fontSize: "0.8125rem",
-                  color: "var(--muted-foreground)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: "var(--foreground)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {user.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.8125rem",
+                    color: "var(--muted-foreground)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {user.email}
+                </div>
+              </div>
+              <Badge
+                variant={user.role === "ADMIN" ? "roleAdmin" : "roleMember"}
+                size="sm"
               >
-                {user.email}
-              </div>
+                {user.role}
+              </Badge>
             </div>
-            <Badge
-              variant={user.role === "ADMIN" ? "roleAdmin" : "roleMember"}
-              size="sm"
-            >
-              {user.role}
-            </Badge>
-          </div>
+            <div style={{ marginTop: "0.5rem" }}>
+              <OrganizationSwitcher
+                currentOrganizationId={user.activeOrganizationId ?? null}
+                organizations={user.organizations}
+              />
+            </div>
+          </>
         ) : (
           <div
             style={{

@@ -7,18 +7,16 @@
 ## 1. Better Auth & Multi-Tenant Database Schema (`src/infrastructure/db/schema.ts`)
 
 ```typescript
-import {
-  integer,
-  sqliteTable,
-  text,
-} from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // 1. Core User Table
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
+  emailVerified: integer("email_verified", { mode: "boolean" })
+    .notNull()
+    .default(false),
   image: text("image"),
   role: text("role").notNull().default("MEMBER"), // Global role: ADMIN | MEMBER
   createdAt: text("created_at").notNull(),
@@ -28,7 +26,9 @@ export const user = sqliteTable("user", {
 // 2. Active Sessions Table (with activeOrganizationId)
 export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   token: text("token").notNull().unique(),
   expiresAt: text("expires_at").notNull(),
   ipAddress: text("ip_address"),
@@ -41,7 +41,9 @@ export const session = sqliteTable("session", {
 // 3. Accounts (Credentials & OAuth)
 export const account = sqliteTable("account", {
   id: text("id").primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
   accessToken: text("access_token"),
@@ -78,8 +80,12 @@ export const organization = sqliteTable("organization", {
 // 6. Organization Members (User Membership & Org Roles)
 export const member = sqliteTable("member", {
   id: text("id").primaryKey(),
-  organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" }),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   role: text("role").notNull().default("member"), // owner | admin | member
   createdAt: text("created_at").notNull(),
 });
@@ -87,19 +93,25 @@ export const member = sqliteTable("member", {
 // 7. Organization Invitations
 export const invitation = sqliteTable("invitation", {
   id: text("id").primaryKey(),
-  organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" }),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
   email: text("email").notNull(),
   role: text("role").notNull().default("member"),
   status: text("status").notNull().default("pending"), // pending | accepted | rejected | canceled
   expiresAt: text("expires_at").notNull(),
-  inviterId: text("inviter_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  inviterId: text("inviter_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   createdAt: text("created_at").notNull(),
 });
 
 // 8. Songs Scoped to Organization
 export const songs = sqliteTable("songs", {
   id: text("id").primaryKey(),
-  organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" }),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   artist: text("artist").notNull(),
   originalKey: text("original_key").notNull(),
@@ -116,7 +128,9 @@ export const songs = sqliteTable("songs", {
 // 9. Labels Scoped to Organization
 export const labels = sqliteTable("labels", {
   id: text("id").primaryKey(),
-  organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" }),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   colorHex: text("color_hex").notNull().default("#6366f1"),

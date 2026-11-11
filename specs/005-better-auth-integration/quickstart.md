@@ -28,6 +28,7 @@ Expected output:
 ## 2. Interactive UI Validation: Multi-Tenant Switching
 
 1. Start development server:
+
    ```bash
    bun run dev
    ```

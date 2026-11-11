@@ -73,6 +73,7 @@ export const updateUserSchema = z.object({
 });
 
 export const createSongSchema = z.object({
+  organizationId: z.string().min(1).optional(),
   title: z.string().min(1).max(200),
   artist: z.string().min(1).max(200),
   originalKey: musicalKeySchema,
@@ -103,6 +104,7 @@ export const updateRoleAssignmentSchema = z.object({
 });
 
 export const createLabelSchema = z.object({
+  organizationId: z.string().min(1).optional(),
   name: z.string().min(1).max(100),
   slug: slugInputSchema.optional(),
   colorHex: colorHexSchema,
@@ -170,4 +172,38 @@ export const roadmapFilterSchema = z.object({
     .optional(),
   priority: z.enum(["P1", "P2", "P3", "P4"]).optional(),
   phase: z.coerce.number().int().min(1).max(4).optional(),
+});
+
+export const organizationRoleSchema = z.enum(["owner", "admin", "member"]);
+export const invitationStatusSchema = z.enum([
+  "pending",
+  "accepted",
+  "rejected",
+  "canceled",
+]);
+
+export const createOrganizationSchema = z.object({
+  name: z.string().trim().min(1, "El nombre es requerido").max(100),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug inválido")
+    .min(2)
+    .max(64)
+    .optional(),
+  logo: z.string().url().nullable().optional(),
+});
+
+export const inviteMemberSchema = z.object({
+  email: z.string().email("Correo electrónico inválido").max(254),
+  role: z.enum(["admin", "member"]).default("member"),
+  organizationId: z.string().min(1, "organizationId es requerido"),
+});
+
+export const setActiveOrgSchema = z.object({
+  organizationId: z.string().min(1, "organizationId es requerido"),
+});
+
+export const acceptInvitationSchema = z.object({
+  invitationId: z.string().min(1, "invitationId es requerido"),
 });

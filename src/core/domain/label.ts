@@ -2,6 +2,7 @@ import { ValidationError } from "./errors";
 
 export interface Label {
   id: string;
+  organizationId: string;
   name: string;
   slug: string;
   colorHex: string;
@@ -48,6 +49,7 @@ export function createColorHex(value: unknown): string {
 
 export function createLabel(input: {
   id: unknown;
+  organizationId?: unknown;
   name: unknown;
   slug?: unknown;
   colorHex: unknown;
@@ -55,9 +57,20 @@ export function createLabel(input: {
   if (typeof input.id !== "string" || input.id.length === 0) {
     throw new ValidationError("El id de la etiqueta es requerido");
   }
+  let organizationId = "worshipflow-central";
+  if (input.organizationId !== undefined) {
+    if (
+      typeof input.organizationId !== "string" ||
+      input.organizationId.trim().length === 0
+    ) {
+      throw new ValidationError("El id de la organización es requerido");
+    }
+    organizationId = input.organizationId.trim();
+  }
   const name = createLabelName(input.name);
   return {
     id: input.id,
+    organizationId,
     name,
     slug: input.slug === undefined ? createSlug(name) : createSlug(input.slug),
     colorHex: createColorHex(input.colorHex),

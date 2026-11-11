@@ -25,8 +25,10 @@ function requireAdmin(actor: SessionPayload): void {
 export class ListLabels {
   constructor(private readonly labels: ILabelRepository) {}
 
-  async execute(): Promise<{ labels: Label[] }> {
-    return { labels: await this.labels.list() };
+  async execute(input?: {
+    organizationId?: string;
+  }): Promise<{ labels: Label[] }> {
+    return { labels: await this.labels.list(input?.organizationId) };
   }
 }
 
@@ -43,13 +45,16 @@ export class CreateLabel {
     const name = createLabelName(input.name);
     const slug =
       input.slug === undefined ? createSlug(name) : createSlug(input.slug);
-    if (await this.labels.findBySlug(slug)) {
+    const organizationId =
+      input.actor.activeOrganizationId || "worshipflow-central";
+    if (await this.labels.findBySlug(slug, organizationId)) {
       throw new ConflictError(`La etiqueta "${slug}" ya existe`);
     }
     return {
       label: await this.labels.create(
         createLabel({
           id: newId(),
+          organizationId,
           name,
           slug,
           colorHex: createColorHex(input.colorHex),
@@ -82,7 +87,7 @@ export class UpdateLabel {
           ? existing.slug
           : createSlug(name)
         : createSlug(input.slug);
-    const clash = await this.labels.findBySlug(slug);
+    const clash = await this.labels.findBySlug(slug, existing.organizationId);
     if (clash && clash.id !== existing.id) {
       throw new ConflictError(`La etiqueta "${slug}" ya existe`);
     }

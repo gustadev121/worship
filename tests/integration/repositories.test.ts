@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "bun:test";
+import { sql } from "drizzle-orm";
 import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { ConflictError } from "@/core/domain/errors";
 import { createLabel } from "@/core/domain/label";
@@ -48,11 +56,22 @@ async function setup(): Promise<Fixture> {
 }
 
 let fx: Fixture;
-beforeEach(async () => {
+beforeAll(async () => {
   fx = await setup();
 });
-afterEach(async () => {
-  await fx.mf.dispose();
+
+afterAll(async () => {
+  if (fx?.mf) {
+    await fx.mf.dispose();
+  }
+});
+
+beforeEach(async () => {
+  await fx.db.run(sql`DELETE FROM role_assignments`);
+  await fx.db.run(sql`DELETE FROM song_labels`);
+  await fx.db.run(sql`DELETE FROM songs`);
+  await fx.db.run(sql`DELETE FROM labels`);
+  await fx.db.run(sql`DELETE FROM users`);
 });
 
 function seedUser(

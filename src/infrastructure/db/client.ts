@@ -10,13 +10,32 @@ export type D1Binding = Parameters<typeof drizzleD1>[0];
 // it from disk (no filesystem under workerd).
 import MIGRATION_SQL from "../../../drizzle/0001_init.sql?raw";
 import ROADMAP_MIGRATION_SQL from "../../../drizzle/0002_roadmap.sql?raw";
+import BETTER_AUTH_MIGRATION_SQL from "../../../drizzle/0003_better_auth.sql?raw";
 
 function migrationStatements(): string[] {
-  const allSql = `${MIGRATION_SQL};\n${ROADMAP_MIGRATION_SQL}`;
+  const allSql = `${MIGRATION_SQL};\n${ROADMAP_MIGRATION_SQL};\n${BETTER_AUTH_MIGRATION_SQL}`;
   return allSql
     .split(";")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
+}
+
+function isDuplicateColumnError(error: unknown): boolean {
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current !== null && current !== undefined && !seen.has(current)) {
+    seen.add(current);
+    const message =
+      current instanceof Error ? current.message : String(current);
+    if (/duplicate column name/i.test(message)) {
+      return true;
+    }
+    current =
+      current instanceof Error
+        ? (current as Error & { cause?: unknown }).cause
+        : undefined;
+  }
+  return false;
 }
 
 /**
@@ -28,7 +47,14 @@ export async function getDb(binding: D1Binding): Promise<Db> {
   const db = drizzleD1(binding, { schema });
   await db.run(sql`PRAGMA foreign_keys = ON`);
   for (const stmt of migrationStatements()) {
-    await db.run(sql.raw(stmt));
+    try {
+      await db.run(sql.raw(stmt));
+    } catch (error: unknown) {
+      if (isDuplicateColumnError(error)) {
+        continue;
+      }
+      throw error;
+    }
   }
   return db;
 }

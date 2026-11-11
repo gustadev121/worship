@@ -13,11 +13,12 @@
     "seed": "bun scripts/seed.ts",
     "start": "vinext start",
     "start:vinext": "vinext start",
-    "test": "bun test",
+    "test": "bun test --timeout 20000",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "@vinext/cloudflare": "^1.2.1",
+    "better-auth": "^1.7.21",
     "drizzle-orm": "^0.45.4",
     "jose": "^6.2.13",
     "react": "^19.3.1",

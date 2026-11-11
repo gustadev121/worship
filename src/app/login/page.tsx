@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { authClient } from "@/infrastructure/auth/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,21 +19,31 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
+      const email = identifier.includes("@")
+        ? identifier
+        : `${identifier}@worshipflow.local`;
+
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe,
       });
 
-      if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        setError(
-          data?.error ??
-            "Credenciales incorrectas. Verifica tu usuario y contraseña.",
-        );
-        return;
+      if (result.error) {
+        // Fallback to legacy endpoint for existing pre-Better-Auth accounts
+        const legacyRes = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier, password }),
+        });
+
+        if (!legacyRes.ok) {
+          setError(
+            result.error.message ||
+              "Credenciales incorrectas. Verifica tu usuario y contraseña.",
+          );
+          return;
+        }
       }
 
       router.push("/");
@@ -40,6 +51,20 @@ export default function LoginPage() {
     } catch (_err) {
       setError("Error de conexión. Intenta de nuevo en unos momentos.");
     } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setIsLoading(true);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    } catch (_err) {
+      setError("No se pudo iniciar sesión con Google.");
       setIsLoading(false);
     }
   }
@@ -150,7 +175,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
-                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={
                   showPassword ? "Ocultar contraseña" : "Ver contraseña"
                 }
@@ -206,7 +231,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-9 inline-flex items-center justify-center gap-2 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors disabled:opacity-50"
+            className="w-full h-9 inline-flex items-center justify-center gap-2 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -218,6 +243,47 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        {/* Social Authentication */}
+        <div className="space-y-3 pt-1">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border/60" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-[10px] text-muted-foreground font-medium">
+                o continuar con
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full h-9 inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-border/80 bg-secondary/50 text-foreground hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+              />
+            </svg>
+            <span>Google</span>
+          </button>
+        </div>
 
         {/* Login Footer */}
         <footer className="pt-2 border-t border-border/60 text-center">

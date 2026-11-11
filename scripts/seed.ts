@@ -9,6 +9,7 @@
  */
 import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { getContainer } from "@/infrastructure/container";
+import { member, organization, user } from "@/infrastructure/db/schema";
 import type { AppEnv } from "@/infrastructure/env";
 
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
@@ -185,10 +186,24 @@ const ASSIGNMENTS: SeedAssignment[] = [
   },
 ];
 
+const DEFAULT_ORG_ID = "worshipflow-central";
+
+// Ensure default organization exists
+await c.db
+  .insert(organization)
+  .values({
+    id: DEFAULT_ORG_ID,
+    name: "WorshipFlow Central",
+    slug: DEFAULT_ORG_ID,
+    createdAt: new Date().toISOString(),
+  })
+  .onConflictDoNothing();
+
 const bootstrapActor = {
   sub: "seed-admin",
   username: "admin",
   role: "ADMIN" as const,
+  activeOrganizationId: DEFAULT_ORG_ID,
 };
 
 // Clear in FK order: role assignments first, then songs/labels/users.
@@ -218,21 +233,71 @@ const { user: firstAdmin } = await c.createUser.execute({
   password: ADMIN_SEED.password,
   role: ADMIN_SEED.role,
 });
+
+// Seed Better Auth user and member link for first admin
+await c.db
+  .insert(user)
+  .values({
+    id: firstAdmin.id,
+    name: firstAdmin.username,
+    email: firstAdmin.email,
+    role: firstAdmin.role,
+    createdAt: firstAdmin.createdAt,
+    updatedAt: firstAdmin.updatedAt,
+  })
+  .onConflictDoNothing();
+
+await c.db
+  .insert(member)
+  .values({
+    id: crypto.randomUUID(),
+    organizationId: DEFAULT_ORG_ID,
+    userId: firstAdmin.id,
+    role: "owner",
+    createdAt: new Date().toISOString(),
+  })
+  .onConflictDoNothing();
+
 const actor = {
   sub: firstAdmin.id,
   username: firstAdmin.username,
   role: "ADMIN" as const,
+  activeOrganizationId: DEFAULT_ORG_ID,
 };
 const byUsername = new Map([[firstAdmin.username, firstAdmin]]);
 for (const u of MEMBER_SEEDS) {
-  const { user } = await c.createUser.execute({
+  const { user: memberUser } = await c.createUser.execute({
     actor,
     username: u.username,
     email: u.email,
     password: u.password,
     role: u.role,
   });
-  byUsername.set(user.username, user);
+  byUsername.set(memberUser.username, memberUser);
+
+  // Seed Better Auth user and member link for volunteers
+  await c.db
+    .insert(user)
+    .values({
+      id: memberUser.id,
+      name: memberUser.username,
+      email: memberUser.email,
+      role: memberUser.role,
+      createdAt: memberUser.createdAt,
+      updatedAt: memberUser.updatedAt,
+    })
+    .onConflictDoNothing();
+
+  await c.db
+    .insert(member)
+    .values({
+      id: crypto.randomUUID(),
+      organizationId: DEFAULT_ORG_ID,
+      userId: memberUser.id,
+      role: "member",
+      createdAt: new Date().toISOString(),
+    })
+    .onConflictDoNothing();
 }
 
 // Labels.

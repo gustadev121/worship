@@ -5,6 +5,13 @@ import {
   UpdateLabel,
 } from "@/core/application/use-cases/labels";
 import {
+  AcceptInvitationUseCase,
+  CreateOrganizationUseCase,
+  InviteMemberUseCase,
+  ListOrganizationMembersUseCase,
+  ListUserOrganizationsUseCase,
+} from "@/core/application/use-cases/organizations";
+import {
   GetRoadmap,
   SeedRoadmap,
   ToggleCapabilityVote,
@@ -35,11 +42,13 @@ import {
   UpdateUser,
 } from "@/core/application/use-cases/users";
 import { SearchYouTube } from "@/core/application/use-cases/youtube";
+import { type AuthInstance, getAuth } from "./auth/better-auth";
 import { JoseJwtTokenService } from "./auth/JoseJwtTokenService";
 import { WebCryptoPasswordHasher } from "./auth/WebCryptoPasswordHasher";
 import { type D1Binding, type Db, getDb } from "./db/client";
 import type { AppEnv } from "./env";
 import { DrizzleLabelRepository } from "./repositories/DrizzleLabelRepository";
+import { DrizzleOrganizationRepository } from "./repositories/DrizzleOrganizationRepository";
 import { DrizzleRoadmapRepository } from "./repositories/DrizzleRoadmapRepository";
 import { DrizzleRoleAssignmentRepository } from "./repositories/DrizzleRoleAssignmentRepository";
 import { DrizzleSongRepository } from "./repositories/DrizzleSongRepository";
@@ -49,7 +58,9 @@ import { YouTubeApiAdapter } from "./youtube/YouTubeApiAdapter";
 
 export interface Container {
   db: Db;
+  auth: AuthInstance;
   users: DrizzleUserRepository;
+  organizations: DrizzleOrganizationRepository;
   songs: DrizzleSongRepository;
   roles: DrizzleRoleAssignmentRepository;
   labels: DrizzleLabelRepository;
@@ -83,6 +94,11 @@ export interface Container {
   updateMilestoneStatus: UpdateMilestoneStatus;
   toggleCapabilityVote: ToggleCapabilityVote;
   seedRoadmap: SeedRoadmap;
+  createOrganization: CreateOrganizationUseCase;
+  listUserOrganizations: ListUserOrganizationsUseCase;
+  inviteMember: InviteMemberUseCase;
+  acceptInvitation: AcceptInvitationUseCase;
+  listOrganizationMembers: ListOrganizationMembersUseCase;
 }
 
 export async function getContainer(env: AppEnv): Promise<Container> {
@@ -93,6 +109,7 @@ export async function getContainer(env: AppEnv): Promise<Container> {
   }
   const db = await getDb(env.DB as D1Binding);
   const users = new DrizzleUserRepository(db);
+  const organizations = new DrizzleOrganizationRepository(db);
   const songs = new DrizzleSongRepository(db);
   const roles = new DrizzleRoleAssignmentRepository(db);
   const labels = new DrizzleLabelRepository(db);
@@ -103,9 +120,15 @@ export async function getContainer(env: AppEnv): Promise<Container> {
     env.YOUTUBE_API_KEY && env.YOUTUBE_API_KEY.length > 0
       ? new YouTubeApiAdapter(env.YOUTUBE_API_KEY)
       : new MockYouTubeAdapter();
+  const auth = getAuth(
+    db,
+    env as unknown as Record<string, string | undefined>,
+  );
   return {
     db,
+    auth,
     users,
+    organizations,
     songs,
     roles,
     labels,
@@ -139,5 +162,10 @@ export async function getContainer(env: AppEnv): Promise<Container> {
     updateMilestoneStatus: new UpdateMilestoneStatus(roadmap),
     toggleCapabilityVote: new ToggleCapabilityVote(roadmap),
     seedRoadmap: new SeedRoadmap(roadmap),
+    createOrganization: new CreateOrganizationUseCase(organizations),
+    listUserOrganizations: new ListUserOrganizationsUseCase(organizations),
+    inviteMember: new InviteMemberUseCase(organizations),
+    acceptInvitation: new AcceptInvitationUseCase(organizations),
+    listOrganizationMembers: new ListOrganizationMembersUseCase(organizations),
   };
 }

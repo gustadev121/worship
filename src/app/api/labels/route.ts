@@ -11,7 +11,9 @@ export async function GET(): Promise<Response> {
   }
   try {
     const container = await getContainer(await getRequestEnv());
-    const { labels } = await container.listLabels.execute();
+    const { labels } = await container.listLabels.execute({
+      organizationId: session.activeOrganizationId ?? undefined,
+    });
     return Response.json({ labels });
   } catch (err) {
     return errorResponse(err);

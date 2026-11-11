@@ -92,6 +92,7 @@ export function createTimeSignature(value: unknown): string | null {
 
 export interface Song {
   id: string;
+  organizationId: string;
   title: string;
   artist: string;
   originalKey: MusicalKey;
@@ -131,6 +132,7 @@ export function createArtist(value: unknown): string {
 
 export function createSong(input: {
   id: unknown;
+  organizationId?: unknown;
   title: unknown;
   artist: unknown;
   originalKey: unknown;
@@ -146,9 +148,20 @@ export function createSong(input: {
   if (typeof input.id !== "string" || input.id.length === 0) {
     throw new ValidationError("El id de la canción es requerido");
   }
+  let organizationId = "worshipflow-central";
+  if (input.organizationId !== undefined) {
+    if (
+      typeof input.organizationId !== "string" ||
+      input.organizationId.trim().length === 0
+    ) {
+      throw new ValidationError("El id de la organización es requerido");
+    }
+    organizationId = input.organizationId.trim();
+  }
   const now = new Date().toISOString();
   return {
     id: input.id,
+    organizationId,
     title: createSongTitle(input.title),
     artist: createArtist(input.artist),
     originalKey: createMusicalKey(input.originalKey),

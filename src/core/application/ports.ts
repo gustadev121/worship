@@ -1,5 +1,11 @@
 import type { Label } from "../domain/label";
 import type {
+  Organization,
+  OrganizationInvitation,
+  OrganizationMember,
+  OrganizationRole,
+} from "../domain/organization";
+import type {
   CapabilityFeedback,
   CapabilityItem,
   FunctionalTrack,
@@ -17,7 +23,10 @@ import type { User, UserRole } from "../domain/user";
 export interface SessionPayload {
   sub: string;
   username: string;
+  email?: string;
   role: UserRole;
+  activeOrganizationId?: string | null;
+  organizationRole?: OrganizationRole | null;
 }
 
 export interface IUserRepository {
@@ -30,6 +39,7 @@ export interface IUserRepository {
 }
 
 export interface SongFilter {
+  organizationId?: string;
   query?: string;
   labelIds?: string[];
   practiceKey?: string;
@@ -55,9 +65,9 @@ export interface IRoleAssignmentRepository {
 }
 
 export interface ILabelRepository {
-  list(): Promise<Label[]>;
+  list(organizationId?: string): Promise<Label[]>;
   findById(id: string): Promise<Label | null>;
-  findBySlug(slug: string): Promise<Label | null>;
+  findBySlug(slug: string, organizationId?: string): Promise<Label | null>;
   create(label: Label): Promise<Label>;
   update(label: Label): Promise<Label>;
   delete(id: string): Promise<void>;
@@ -136,6 +146,27 @@ export interface RoadmapRepository {
     dependencies: PhaseDependency[];
   }): Promise<void>;
   isSeeded(): Promise<boolean>;
+}
+
+export interface IOrganizationRepository {
+  findById(id: string): Promise<Organization | null>;
+  findBySlug(slug: string): Promise<Organization | null>;
+  listByUser(
+    userId: string,
+  ): Promise<{ organization: Organization; role: OrganizationRole }[]>;
+  create(org: Organization, creatorUserId: string): Promise<Organization>;
+  addMember(member: OrganizationMember): Promise<OrganizationMember>;
+  listMembers(
+    organizationId: string,
+  ): Promise<{ member: OrganizationMember; user: User }[]>;
+  createInvitation(
+    invitation: OrganizationInvitation,
+  ): Promise<OrganizationInvitation>;
+  findInvitationById(id: string): Promise<OrganizationInvitation | null>;
+  acceptInvitation(
+    invitationId: string,
+    userId: string,
+  ): Promise<OrganizationMember>;
 }
 
 export type IRoadmapRepository = RoadmapRepository;

@@ -11,13 +11,14 @@
 ## Clarifications
 
 ### Session 2026-11-10
+
 - Q: What should be the default theme mode and primary brand aesthetic for WorshipFlow when a new user visits without an existing theme preference? (FR-002) → A: Dark-First Default: Defaults to Dark Mode with Deep Slate/Zinc neutrals, Indigo primary brand actions, and Amber chord highlights; user can toggle to Light mode at any time with preference persisted.
 - Q: What notation format should the Song Editor and Rehearsal Studio use for authoring and rendering chords above lyrics? (FR-007, FR-008) → A: ChordPro inline bracket notation (e.g. `[G]Amazing [D]grace`), parsed and rendered as elevated chord pills positioned above syllables with dynamic transposition support.
 - Q: What interactive stage utility controls should be provided in the Rehearsal Studio header for live practice? (FR-007) → A: Full Stage Control Bar: Transposition stepper (+/- semitones relative to arrangement key), font size scaling controls (A- / A+), and toggleable hands-free auto-scroll with adjustable speed slider.
 - Q: Should the Rehearsal Studio (`/songs/[id]/practice`) include a dedicated Fullscreen Stage Mode toggle with Screen Wake Lock support? (FR-007) → A: Fullscreen Stage Mode + Wake Lock: 1-click toggle hides navigation and browser chrome to maximize chord sheet lines, while requesting Screen Wake Lock to prevent tablet display sleep during practice and live worship.
 - Q: For mobile device viewports (<768px), how should primary navigation be structured to ensure ergonomic thumb-reach during rehearsals and on-the-go planning? (FR-004) → A: Bottom Navigation Dock + More Drawer: Persistent bottom bar with thumb-accessible icons for Catálogo, Ensayo, Roadmap, and Profile, paired with a "More" slide-over drawer for Admin tools.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Unified Design System Foundation & Global App Shell (Priority: P1)
 
@@ -107,7 +108,7 @@ As a team member logging in, I want an aesthetically compelling, secure Login pa
 - **Tablet / Music Stand Orientation**: When a tablet or mobile device rotates between landscape and portrait orientations during rehearsal, the chord/lyric view adjusts dynamically without causing scroll jumps or video restarts.
 - **Touchscreen Device Fallbacks**: On touch devices lacking mouse hover capability, interactive card spotlight and hover effects degrade gracefully to tap-active touch states without phantom clicks.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -159,14 +160,14 @@ As a team member logging in, I want an aesthetically compelling, secure Login pa
   - Form inputs with floating labels, password visibility toggle, and clear inline validation feedback.
 - **FR-012**: The system MUST support accessibility preferences by automatically disabling ambient and hover animations when `prefers-reduced-motion` is detected.
 
-### Key Entities *(Design System Assets & Token Specifications)*
+### Key Entities _(Design System Assets & Token Specifications)_
 
 - **DesignTokens**: Represents the semantic variable definitions governing colors, surfaces, typography, radii, and shadows across Dark and Light modes.
 - **ComponentPrimitive**: Represents a standardized UI building block (Button, Card, Badge, Modal, Input, Table) ensuring reusable visual consistency.
 - **ChordProSheet**: Represents the parsed song chart structure mapping sections (Verse, Chorus, Bridge), lines, lyrics syllables, and bracketed chord markers for transposable rendering.
 - **PageLayoutSpec**: Represents the structured visual composition, grid hierarchy, and component arrangement for each application view.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

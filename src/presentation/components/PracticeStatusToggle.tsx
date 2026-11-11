@@ -4,9 +4,24 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const STATUSES = [
-  { value: "PENDING", label: "Pendiente" },
-  { value: "PRACTICING", label: "Ensayando" },
-  { value: "READY", label: "Lista" },
+  {
+    value: "PENDING",
+    label: "Pendiente",
+    icon: "○",
+    activeClass: "bg-slate-500/20 text-slate-300 border-slate-500/40",
+  },
+  {
+    value: "PRACTICING",
+    label: "Ensayando",
+    icon: "⋯",
+    activeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+  },
+  {
+    value: "READY",
+    label: "Listo para Servicio",
+    icon: "✓",
+    activeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+  },
 ];
 
 export function PracticeStatusToggle({
@@ -24,6 +39,7 @@ export function PracticeStatusToggle({
   const [saving, setSaving] = useState(false);
 
   async function change(next: string) {
+    if (saving || next === status) return;
     setSaving(true);
     setError(null);
     const res = await fetch(`/api/songs/${songId}/roles/${roleId}`, {
@@ -36,7 +52,7 @@ export function PracticeStatusToggle({
       const data = (await res.json().catch(() => null)) as {
         error?: string;
       } | null;
-      setError(data?.error ?? "Error al actualizar");
+      setError(data?.error ?? "Error al actualizar estado");
       return;
     }
     setStatus(next);
@@ -44,22 +60,44 @@ export function PracticeStatusToggle({
   }
 
   return (
-    <div>
-      <label>
-        Estado de ensayo
-        <select
-          value={status}
-          disabled={saving}
-          onChange={(e) => change(e.target.value)}
-        >
-          {STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      {error ? <p role="alert">{error}</p> : null}
+    <div className="practice-status-widget flex flex-wrap items-center gap-3 p-3 rounded-xl bg-card border border-border/80 shadow-xs">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Tu Estado:
+      </span>
+
+      <div className="flex items-center gap-1.5">
+        {STATUSES.map((s) => {
+          const isSelected = status === s.value;
+          return (
+            <button
+              key={s.value}
+              type="button"
+              disabled={saving}
+              onClick={() => change(s.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all active:scale-95 ${
+                isSelected
+                  ? `${s.activeClass} shadow-xs ring-1`
+                  : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground hover:bg-accent"
+              }`}
+            >
+              <span className="mr-1">{s.icon}</span>
+              <span>{s.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {saving ? (
+        <span className="text-xs text-muted-foreground animate-pulse">
+          Guardando...
+        </span>
+      ) : null}
+
+      {error ? (
+        <span role="alert" className="text-xs text-destructive font-medium">
+          {error}
+        </span>
+      ) : null}
     </div>
   );
 }

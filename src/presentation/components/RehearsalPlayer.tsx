@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  calculateSemitoneDelta,
+  parseChordPro,
+  transposeChordSheet,
+} from "@/core/domain/chordpro";
+import { useAutoScroll } from "@/presentation/hooks/use-auto-scroll";
+import { useScreenWakeLock } from "@/presentation/hooks/use-screen-wake-lock";
+import { ChordSheet } from "./rehearsal/chord-sheet";
+import { StageUtilityBar } from "./rehearsal/stage-utility-bar";
 
 export interface RehearsalSection {
   label: string;
@@ -38,43 +47,104 @@ interface YTPlayer {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25];
 
-export function RehearsalPlayer({
-  youtubeVideoId,
-  sections,
-  lyricsAndChords,
-  practiceKey,
-  viewerRole,
-}: {
+export interface RehearsalPlayerProps {
+  songId?: string;
+  songTitle?: string;
+  songArtist?: string;
   youtubeVideoId: string | null;
   sections: RehearsalSection[];
   lyricsAndChords: string;
+  originalKey?: string;
   practiceKey: string | null;
   viewerRole: ViewerRole | null;
-}) {
+}
+
+export function RehearsalPlayer({
+  songTitle = "Canción de Alabanza",
+  songArtist = "Artista",
+  youtubeVideoId,
+  sections,
+  lyricsAndChords,
+  originalKey = "G",
+  practiceKey,
+  viewerRole,
+}: RehearsalPlayerProps) {
+  // Container & YouTube Player Refs
+  const stageContainerRef = useRef<HTMLDivElement | null>(null);
   const mountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
+
+  // Playback Loop & Speed State
   const loopRef = useRef<{ a: number; b: number | null }>({ a: 0, b: null });
   const [loop, setLoop] = useState<{ a: number; b: number | null }>({
     a: 0,
     b: null,
   });
   const [speed, setSpeed] = useState(1);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Initial semitone delta
+  const initialDelta = practiceKey
+    ? calculateSemitoneDelta(originalKey, practiceKey)
+    : 0;
+  const [semitoneDelta, setSemitoneDelta] = useState<number>(initialDelta);
+  const [fontSizeRem, setFontSizeRem] = useState<number>(1.125);
+
+  // Screen Wake Lock & Auto Scroll Hooks
+  const wakeLock = useScreenWakeLock(true);
+  const autoScroll = useAutoScroll({ initialSpeed: 28 });
+
+  // Parse and transpose ChordPro sheet
+  const parsedSheet = useMemo(() => {
+    return parseChordPro(lyricsAndChords, {
+      title: songTitle,
+      artist: songArtist,
+      originalKey,
+    });
+  }, [lyricsAndChords, songTitle, songArtist, originalKey]);
+
+  const transposedSheet = useMemo(() => {
+    return transposeChordSheet(parsedSheet, semitoneDelta);
+  }, [parsedSheet, semitoneDelta]);
 
   loopRef.current = loop;
 
+  // Fullscreen change listener
   useEffect(() => {
-    if (!youtubeVideoId) {
-      return;
+    function handleFullscreenChange() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
     }
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  function toggleFullscreen() {
+    const el = stageContainerRef.current;
+    if (!el) return;
+
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }
+
+  // Initialize YouTube Iframe API
+  useEffect(() => {
+    if (!youtubeVideoId) return;
     let cancelled = false;
-    let player: YTPlayer | null = null;
 
     function create() {
-      if (cancelled || !mountRef.current || !window.YT) {
-        return;
-      }
-      player = new window.YT.Player(mountRef.current, {
+      if (cancelled || !mountRef.current || !window.YT) return;
+      playerRef.current = new window.YT.Player(mountRef.current, {
         videoId: youtubeVideoId as string,
+        playerVars: {
+          playsinline: 1,
+          rel: 0,
+        },
         events: {
           onReady: (e) => {
             playerRef.current = e.target;
@@ -95,15 +165,13 @@ export function RehearsalPlayer({
     const timer = setInterval(() => {
       const { a, b } = loopRef.current;
       const p = playerRef.current;
-      if (b === null || !p) {
-        return;
-      }
+      if (b === null || !p) return;
       try {
         if (p.getCurrentTime() >= b) {
           p.seekTo(a, true);
         }
       } catch {
-        // Player not ready yet; retry on next tick.
+        // Player not ready yet
       }
     }, 250);
 
@@ -111,106 +179,234 @@ export function RehearsalPlayer({
       cancelled = true;
       clearInterval(timer);
       try {
-        player?.destroy();
+        playerRef.current?.destroy();
       } catch {
-        // Ignore teardown errors.
+        // Ignore teardown errors
       }
       playerRef.current = null;
     };
   }, [youtubeVideoId]);
-
-  if (!youtubeVideoId) {
-    return <p>Todavía no hay video de ensayo para esta canción.</p>;
-  }
 
   function setRate(rate: number) {
     setSpeed(rate);
     try {
       playerRef.current?.setPlaybackRate(rate);
     } catch {
-      // Ignore until the player is ready.
+      // Ignore
     }
   }
 
-  function seek(seconds: number) {
+  function seek(seconds: number, label?: string) {
+    if (label) setActiveSection(label);
     try {
       playerRef.current?.seekTo(seconds, true);
     } catch {
-      // Ignore until the player is ready.
+      // Ignore
     }
   }
 
   return (
-    <section>
-      <div ref={mountRef} />
-      <div>
-        {SPEEDS.map((s) => (
-          <button
-            key={s}
-            type="button"
-            aria-pressed={speed === s}
-            onClick={() => setRate(s)}
-          >
-            {s}x
-          </button>
-        ))}
-      </div>
-      <div>
-        {sections.map((s) => (
-          <button
-            key={`${s.label}-${s.startSeconds}`}
-            type="button"
-            onClick={() => seek(s.startSeconds)}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-      <div>
-        <button
-          type="button"
-          onClick={() => {
-            try {
-              setLoop((prev) => ({
-                ...prev,
-                a: playerRef.current?.getCurrentTime() ?? 0,
-              }));
-            } catch {
-              // Ignore.
-            }
-          }}
+    <div
+      ref={stageContainerRef}
+      className={`rehearsal-studio-wrapper w-full transition-colors ${
+        isFullscreen
+          ? "fixed inset-0 z-50 bg-[#090d16] text-[#f8fafc] overflow-y-auto p-4 sm:p-6"
+          : "space-y-6"
+      }`}
+    >
+      {/* Stage Utility Bar */}
+      <StageUtilityBar
+        originalKey={originalKey}
+        currentKey={transposedSheet.currentKey}
+        semitoneDelta={semitoneDelta}
+        onStepDownKey={() => setSemitoneDelta((prev) => prev - 1)}
+        onStepUpKey={() => setSemitoneDelta((prev) => prev + 1)}
+        onResetKey={() => setSemitoneDelta(0)}
+        fontSizeRem={fontSizeRem}
+        onScaleDownFont={() =>
+          setFontSizeRem((prev) => Math.max(0.875, prev - 0.125))
+        }
+        onScaleUpFont={() =>
+          setFontSizeRem((prev) => Math.min(1.75, prev + 0.125))
+        }
+        isAutoScrolling={autoScroll.isScrolling}
+        isTemporarilyPaused={autoScroll.isTemporarilyPaused}
+        autoScrollSpeed={autoScroll.speed}
+        onToggleAutoScroll={autoScroll.toggleScrolling}
+        onSpeedChange={autoScroll.setSpeed}
+        onResetToTop={autoScroll.resetToTop}
+        wakeLockActive={wakeLock.isActive}
+        wakeLockSupported={wakeLock.isSupported}
+        onToggleWakeLock={() => {
+          if (wakeLock.isActive) {
+            wakeLock.release();
+          } else {
+            wakeLock.request();
+          }
+        }}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
+      />
+
+      {/* Rehearsal Stage Split View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Video & Media Practice Controls (hidden in full stage focus if desired) */}
+        <div
+          className={`${
+            isFullscreen ? "hidden lg:block lg:col-span-4" : "lg:col-span-5"
+          } space-y-4`}
         >
-          Marcar A ({loop.a.toFixed(1)}s)
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            try {
-              setLoop((prev) => ({
-                ...prev,
-                b: playerRef.current?.getCurrentTime() ?? null,
-              }));
-            } catch {
-              // Ignore.
-            }
-          }}
+          {youtubeVideoId ? (
+            <div className="rounded-xl overflow-hidden border border-border/80 bg-card shadow-md">
+              <div className="aspect-video w-full bg-black relative">
+                <div ref={mountRef} className="w-full h-full" />
+              </div>
+
+              {/* Speed Steppers */}
+              <div className="p-3 bg-secondary/50 border-t border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-medium">
+                  Velocidad:
+                </span>
+                <div className="flex items-center gap-1">
+                  {SPEEDS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      aria-pressed={speed === s}
+                      onClick={() => setRate(s)}
+                      className={`px-2.5 py-1 text-xs rounded-md font-semibold border transition-all ${
+                        speed === s
+                          ? "bg-primary text-white border-primary"
+                          : "bg-card text-muted-foreground hover:text-foreground border-border"
+                      }`}
+                    >
+                      {s}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* A-B Loop Controls */}
+              <div className="p-3 bg-card border-t border-border flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        setLoop((prev) => ({
+                          ...prev,
+                          a: playerRef.current?.getCurrentTime() ?? 0,
+                        }));
+                      } catch {
+                        // Ignore
+                      }
+                    }}
+                    className="px-2.5 py-1 text-xs rounded-md bg-secondary hover:bg-accent text-foreground border border-border font-medium"
+                  >
+                    Marcar A ({loop.a.toFixed(1)}s)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        setLoop((prev) => ({
+                          ...prev,
+                          b: playerRef.current?.getCurrentTime() ?? null,
+                        }));
+                      } catch {
+                        // Ignore
+                      }
+                    }}
+                    className="px-2.5 py-1 text-xs rounded-md bg-secondary hover:bg-accent text-foreground border border-border font-medium"
+                  >
+                    Marcar B ({loop.b === null ? "—" : `${loop.b.toFixed(1)}s`})
+                  </button>
+                </div>
+
+                {loop.b !== null ? (
+                  <button
+                    type="button"
+                    onClick={() => setLoop({ a: 0, b: null })}
+                    className="text-xs text-destructive hover:underline"
+                  >
+                    Limpiar Bucle
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : (
+            <div className="p-6 rounded-xl border border-dashed border-border bg-card/40 text-center text-sm text-muted-foreground">
+              No hay video de ensayo asignado para esta canción.
+            </div>
+          )}
+
+          {/* Section Timestamps Navigator */}
+          {sections && sections.length > 0 ? (
+            <div className="rounded-xl border border-border/80 bg-card p-4 space-y-3">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                Saltar a Sección
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {sections.map((s) => (
+                  <button
+                    key={`${s.label}-${s.startSeconds}`}
+                    type="button"
+                    onClick={() => seek(s.startSeconds, s.label)}
+                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all ${
+                      activeSection === s.label
+                        ? "bg-primary text-white border-primary shadow-xs"
+                        : "bg-secondary hover:bg-accent text-foreground border-border"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Viewer Assigned Role Note */}
+          {viewerRole ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 space-y-1 text-sm">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                Tu Asignación
+              </span>
+              <p className="font-semibold text-foreground">
+                {viewerRole.roleType}
+              </p>
+              {viewerRole.harmonyOrPartNotes ? (
+                <p className="text-xs text-muted-foreground">
+                  {viewerRole.harmonyOrPartNotes}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Right Column: High-Contrast Syllable-Aligned Chord Sheet */}
+        <div
+          ref={autoScroll.scrollContainerRef}
+          className={`${
+            isFullscreen
+              ? "lg:col-span-8 h-[calc(100vh-6rem)]"
+              : "lg:col-span-7 max-h-[85vh]"
+          } overflow-y-auto rounded-2xl border border-border bg-card/70 shadow-sm`}
         >
-          Marcar B ({loop.b === null ? "—" : `${loop.b.toFixed(1)}s`})
-        </button>
-        <button type="button" onClick={() => setLoop({ a: 0, b: null })}>
-          Borrar repetición
-        </button>
+          <ChordSheet
+            sheet={transposedSheet}
+            fontSizeRem={fontSizeRem}
+            activeSectionTitle={activeSection}
+            onSectionClick={(title) => {
+              const matched = sections.find(
+                (s) => s.label.toLowerCase() === title.toLowerCase(),
+              );
+              if (matched) {
+                seek(matched.startSeconds, matched.label);
+              }
+            }}
+          />
+        </div>
       </div>
-      {practiceKey ? <p>Tono de ensayo: {practiceKey}</p> : null}
-      {viewerRole ? (
-        <p>
-          Tu parte: {viewerRole.roleType}
-          {viewerRole.harmonyOrPartNotes
-            ? ` — ${viewerRole.harmonyOrPartNotes}`
-            : ""}
-        </p>
-      ) : null}
-      <pre>{lyricsAndChords}</pre>
-    </section>
+    </div>
   );
 }

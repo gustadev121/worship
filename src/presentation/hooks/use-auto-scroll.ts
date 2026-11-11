@@ -16,6 +16,7 @@ export interface UseAutoScrollReturn {
   stopScrolling: () => void;
   toggleScrolling: () => void;
   resetToTop: () => void;
+  scrollToElement: (element: HTMLElement | null) => void;
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -81,6 +82,21 @@ export function useAutoScroll(
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
+  }, []);
+
+  const scrollToElement = useCallback((element: HTMLElement | null) => {
+    const container = scrollContainerRef.current;
+    if (!container || !element) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+    const targetScrollTop =
+      container.scrollTop + (elementRect.top - containerRect.top) - 16;
+
+    container.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: "smooth",
+    });
   }, []);
 
   // Main requestAnimationFrame loop
@@ -178,6 +194,7 @@ export function useAutoScroll(
     stopScrolling,
     toggleScrolling,
     resetToTop,
+    scrollToElement,
     scrollContainerRef,
   };
 }

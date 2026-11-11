@@ -40,24 +40,26 @@ classDiagram
 ```
 
 ### 1.1 `RehearsalSection` (Domain Value Object)
+
 Represents a configured arrangement timestamp marker within a song.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `label` | `string` | Section identifier matching ChordPro header (e.g., "Verse 1", "Chorus") | Non-empty, max 50 chars |
-| `startSeconds` | `number` | Playback position where this section begins in seconds | $\ge 0$, integer or float |
-| `endSeconds` | `number?` | Optional boundary where section concludes | Optional, must be $> startSeconds$ |
+| Field          | Type      | Description                                                             | Constraints                        |
+| :------------- | :-------- | :---------------------------------------------------------------------- | :--------------------------------- |
+| `label`        | `string`  | Section identifier matching ChordPro header (e.g., "Verse 1", "Chorus") | Non-empty, max 50 chars            |
+| `startSeconds` | `number`  | Playback position where this section begins in seconds                  | $\ge 0$, integer or float          |
+| `endSeconds`   | `number?` | Optional boundary where section concludes                               | Optional, must be $> startSeconds$ |
 
 ### 1.2 `PlaybackSyncState` (Transient Presentation State)
+
 Represents the real-time client synchronization state managed during rehearsal playback.
 
-| Field | Type | Description | Default |
-| :--- | :--- | :--- | :--- |
-| `currentTimeSeconds` | `number` | Latest timestamp reported by the media player | `0` |
-| `activeSectionLabel` | `string?` | Label of the currently playing section | `null` |
-| `isPlaying` | `boolean` | Whether media is actively progressing | `false` |
-| `autoFollowEnabled` | `boolean` | Musician preference for automatic viewport scrolling | `true` |
-| `isUserOverriding` | `boolean` | Whether manual user scroll gesture is temporarily active | `false` |
+| Field                | Type      | Description                                              | Default |
+| :------------------- | :-------- | :------------------------------------------------------- | :------ |
+| `currentTimeSeconds` | `number`  | Latest timestamp reported by the media player            | `0`     |
+| `activeSectionLabel` | `string?` | Label of the currently playing section                   | `null`  |
+| `isPlaying`          | `boolean` | Whether media is actively progressing                    | `false` |
+| `autoFollowEnabled`  | `boolean` | Musician preference for automatic viewport scrolling     | `true`  |
+| `isUserOverriding`   | `boolean` | Whether manual user scroll gesture is temporarily active | `false` |
 
 ---
 

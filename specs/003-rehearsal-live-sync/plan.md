@@ -18,19 +18,19 @@ Enhance the WorshipFlow rehearsal studio (`/songs/[id]/practice`) with live play
 **Project Type**: Full-stack web application (App Router RSC + Client Component rehearsal studio)  
 **Performance Goals**: Time polling interval <= 250ms, active section switch latency < 300ms, smooth scroll animation 60fps, CPU usage < 1% on mobile tablets  
 **Constraints**: Pure domain preservation (pure matching functions in `src/core/domain/chordpro.ts` or `src/core/domain/rehearsal.ts`), zero Node.js-only imports, clean timer cleanup on unmount, touch gesture override protection (3s pause)  
-**Scale/Scope**: 1 unified rehearsal studio page, ~3 component/hook updates, 0 database schema changes  
+**Scale/Scope**: 1 unified rehearsal studio page, ~3 component/hook updates, 0 database schema changes
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Requirement | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| **I. Clean Architecture** | Pure domain, strict inward dependencies | **PASS** | Pure matching calculation in domain; UI state & timers in presentation hooks. |
-| **II. Unified D1** | No schema drift, single D1 engine | **PASS** | No new database tables needed. Reads existing song arrangement data. |
-| **III. Edge Runtime** | Cloudflare Workers & browser compatibility | **PASS** | Runs in browser client component (`"use client"`), no Node.js built-ins. |
-| **IV. Architecture Gates** | Automated CI quality gates pass | **PASS** | `bun run check:arch`, `bun run check`, and `bun test` run and pass. |
-| **V. Domain RBAC** | Secure role-based authorization | **PASS** | Rehearsal view accessible to all authenticated church team members. |
+| Principle                  | Requirement                                | Status   | Notes                                                                         |
+| :------------------------- | :----------------------------------------- | :------- | :---------------------------------------------------------------------------- |
+| **I. Clean Architecture**  | Pure domain, strict inward dependencies    | **PASS** | Pure matching calculation in domain; UI state & timers in presentation hooks. |
+| **II. Unified D1**         | No schema drift, single D1 engine          | **PASS** | No new database tables needed. Reads existing song arrangement data.          |
+| **III. Edge Runtime**      | Cloudflare Workers & browser compatibility | **PASS** | Runs in browser client component (`"use client"`), no Node.js built-ins.      |
+| **IV. Architecture Gates** | Automated CI quality gates pass            | **PASS** | `bun run check:arch`, `bun run check`, and `bun test` run and pass.           |
+| **V. Domain RBAC**         | Secure role-based authorization            | **PASS** | Rehearsal view accessible to all authenticated church team members.           |
 
 ## Project Structure
 
@@ -78,7 +78,7 @@ tests/
 
 > No constitution violations detected. Zero unnecessary complexity introduced.
 
-| Potential Complexity | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| 250ms timer polling | YouTube Iframe API lacks native `timeupdate` event | `onStateChange` only fires on pause/play; `requestAnimationFrame` wastes battery on tablets |
-| 3s manual scroll buffer | Prevents scroll-fighting when user inspects later chords | Without buffer, script forcefully yanks viewport away from the musician |
+| Potential Complexity    | Why Needed                                               | Simpler Alternative Rejected Because                                                        |
+| :---------------------- | :------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
+| 250ms timer polling     | YouTube Iframe API lacks native `timeupdate` event       | `onStateChange` only fires on pause/play; `requestAnimationFrame` wastes battery on tablets |
+| 3s manual scroll buffer | Prevents scroll-fighting when user inspects later chords | Without buffer, script forcefully yanks viewport away from the musician                     |

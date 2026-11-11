@@ -8,6 +8,7 @@ export interface ChordSheetProps {
   className?: string;
   onSectionClick?: (sectionTitle: string) => void;
   activeSectionTitle?: string | null;
+  onUserScroll?: () => void;
 }
 
 export function ChordSheet({
@@ -16,6 +17,7 @@ export function ChordSheet({
   className = "",
   onSectionClick,
   activeSectionTitle,
+  onUserScroll,
 }: ChordSheetProps) {
   if (!sheet || sheet.sections.length === 0) {
     return (
@@ -31,17 +33,23 @@ export function ChordSheet({
       style={{
         fontSize: `${fontSizeRem}rem`,
       }}
+      onWheel={onUserScroll}
+      onTouchMove={onUserScroll}
     >
       {sheet.sections.map((section) => {
-        const isActive = activeSectionTitle === section.title;
+        const isActive =
+          activeSectionTitle?.toLowerCase() === section.title.toLowerCase();
 
         return (
           <section
             key={section.sectionId}
             id={`section-${section.sectionId}`}
-            className={`chord-section rounded-xl p-4 transition-all duration-200 border ${
+            data-section-title={section.title}
+            data-active-section={isActive ? "true" : undefined}
+            aria-current={isActive ? "step" : undefined}
+            className={`chord-section rounded-xl p-4 sm:p-5 transition-all duration-300 border ${
               isActive
-                ? "bg-card/90 border-[var(--chord-accent)] shadow-lg shadow-[var(--chord-accent)]/10 ring-1 ring-[var(--chord-accent)]"
+                ? "bg-card/95 border-[var(--chord-accent)] shadow-lg shadow-[var(--chord-accent)]/15 ring-2 ring-[var(--chord-accent)]/80"
                 : "bg-card/40 border-border/40 hover:border-border"
             }`}
           >
@@ -52,10 +60,16 @@ export function ChordSheet({
                 onClick={() => onSectionClick?.(section.title)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors ${
                   isActive
-                    ? "bg-[var(--chord-accent)] text-stone-950 font-bold"
+                    ? "bg-[var(--chord-accent)] text-stone-950 font-bold shadow-xs"
                     : "bg-primary/15 text-primary hover:bg-primary/25 border border-primary/30"
                 }`}
               >
+                {isActive && (
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-pulse"
+                    aria-hidden="true"
+                  />
+                )}
                 <span>{section.title}</span>
                 {section.timestampSeconds !== undefined ? (
                   <span className="opacity-75 font-mono text-[10px]">

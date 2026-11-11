@@ -22,6 +22,11 @@ export interface StageUtilityBarProps {
   onSpeedChange: (speed: number) => void;
   onResetToTop: () => void;
 
+  // Auto Follow Section
+  autoFollowActive?: boolean;
+  onToggleAutoFollow?: () => void;
+  hasSections?: boolean;
+
   // Screen Wake Lock
   wakeLockActive: boolean;
   wakeLockSupported: boolean;
@@ -50,6 +55,9 @@ export function StageUtilityBar({
   onToggleAutoScroll,
   onSpeedChange,
   onResetToTop,
+  autoFollowActive = true,
+  onToggleAutoFollow,
+  hasSections = false,
   wakeLockActive,
   wakeLockSupported,
   onToggleWakeLock,
@@ -226,6 +234,34 @@ export function StageUtilityBar({
             <path d="M12 19V5M5 12l7-7 7 7" />
           </svg>
         </button>
+
+        {hasSections && onToggleAutoFollow ? (
+          <button
+            type="button"
+            onClick={onToggleAutoFollow}
+            className={`h-7 px-2.5 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold border transition-all active:scale-95 ${
+              autoFollowActive
+                ? "bg-[var(--chord-accent)]/20 text-[var(--chord-accent)] border-[var(--chord-accent)]/50 shadow-xs"
+                : "bg-secondary/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-secondary"
+            }`}
+            title={
+              autoFollowActive
+                ? "Seguir sección activo: La pantalla acompaña la canción en vivo"
+                : "Seguir sección inactivo: Clic para acompañar la sección en reproducción"
+            }
+            aria-pressed={autoFollowActive}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                autoFollowActive
+                  ? "bg-[var(--chord-accent)] animate-pulse"
+                  : "bg-muted-foreground"
+              }`}
+              aria-hidden="true"
+            />
+            <span>Seguir</span>
+          </button>
+        ) : null}
       </div>
 
       {/* 4. Screen Wake Lock & Fullscreen Indicators */}

@@ -20,7 +20,7 @@
 
 **Purpose**: Define pure domain entities, value objects, and shared contracts for section timestamps and playback synchronization.
 
-- [ ] T001 Define pure domain timestamp structures (`RehearsalSection`, `ActiveSectionMatch`, `PlaybackSyncState`) in `src/core/domain/rehearsal-sync.ts` per `specs/003-rehearsal-live-sync/data-model.md`
+- [x] T001 Define pure domain timestamp structures (`RehearsalSection`, `ActiveSectionMatch`, `PlaybackSyncState`) in `src/core/domain/rehearsal-sync.ts` per `specs/003-rehearsal-live-sync/data-model.md`
 
 ---
 
@@ -30,8 +30,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until the deterministic section resolution algorithm is in place.
 
-- [ ] T002 Implement pure deterministic matching function `findActiveSection(sections, currentTimeSeconds)` and timestamp formatter in `src/core/domain/rehearsal-sync.ts` per `specs/003-rehearsal-live-sync/contracts/rehearsal-sync.md`
-- [ ] T003 [P] Write unit tests for `findActiveSection` covering exact matches, intermediate times, negative timestamps, out-of-order arrays, empty sections, and looped intervals in `tests/unit/domain/rehearsal-sync.test.ts`
+- [x] T002 Implement pure deterministic matching function `findActiveSection(sections, currentTimeSeconds)` and timestamp formatter in `src/core/domain/rehearsal-sync.ts` per `specs/003-rehearsal-live-sync/contracts/rehearsal-sync.md`
+- [x] T003 [P] Write unit tests for `findActiveSection` covering exact matches, intermediate times, negative timestamps, out-of-order arrays, empty sections, and looped intervals in `tests/unit/domain/rehearsal-sync.test.ts`
 
 **Checkpoint**: Foundation ready — pure domain time-matching is fully tested and ready for presentation layer integration.
 
@@ -45,13 +45,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Write unit tests for `usePlaybackSync` time polling, section transitions, and A-B loop boundary preservation in `tests/unit/presentation/use-playback-sync.test.ts`
+- [x] T004 [P] [US1] Write unit tests for `usePlaybackSync` time polling, section transitions, and A-B loop boundary preservation in `tests/unit/presentation/use-playback-sync.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `usePlaybackSync` custom hook in `src/presentation/hooks/use-playback-sync.ts` with 250ms polling loop querying `player.getCurrentTime()` and resolving active section per `specs/003-rehearsal-live-sync/contracts/rehearsal-sync.md`
-- [ ] T006 [US1] Update `src/presentation/components/rehearsal/chord-sheet.tsx` to add section ID anchor attributes (`id="section-${section.sectionId}"`, `data-active-section="true"`) and reactive active amber glowing border styles
-- [ ] T007 [US1] Integrate `usePlaybackSync` into `src/presentation/components/RehearsalPlayer.tsx` to synchronize YouTube player playback with active section state and section navigator buttons
+- [x] T005 [US1] Implement `usePlaybackSync` custom hook in `src/presentation/hooks/use-playback-sync.ts` with 250ms polling loop querying `player.getCurrentTime()` and resolving active section per `specs/003-rehearsal-live-sync/contracts/rehearsal-sync.md`
+- [x] T006 [US1] Update `src/presentation/components/rehearsal/chord-sheet.tsx` to add section ID anchor attributes (`id="section-${section.sectionId}"`, `data-active-section="true"`) and reactive active amber glowing border styles
+- [x] T007 [US1] Integrate `usePlaybackSync` into `src/presentation/components/RehearsalPlayer.tsx` to synchronize YouTube player playback with active section state and section navigator buttons
 
 **Checkpoint**: User Story 1 complete — real-time section detection and amber highlight switching works during audio/video playback (MVP ready).
 
@@ -65,9 +65,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [P] [US2] Enhance `useAutoScroll` in `src/presentation/hooks/use-auto-scroll.ts` with programmatic section scrolling method `scrollToElement(el)` using smooth behavior
-- [ ] T009 [US2] Add Auto-Follow toggle switch and status indicator in `src/presentation/components/rehearsal/stage-utility-bar.tsx`
-- [ ] T010 [US2] Connect active section transition listener in `src/presentation/components/RehearsalPlayer.tsx` to trigger smooth scroll to active section element when Auto-Follow is enabled
+- [x] T008 [P] [US2] Enhance `useAutoScroll` in `src/presentation/hooks/use-auto-scroll.ts` with programmatic section scrolling method `scrollToElement(el)` using smooth behavior
+- [x] T009 [US2] Add Auto-Follow toggle switch and status indicator in `src/presentation/components/rehearsal/stage-utility-bar.tsx`
+- [x] T010 [US2] Connect active section transition listener in `src/presentation/components/RehearsalPlayer.tsx` to trigger smooth scroll to active section element when Auto-Follow is enabled
 
 **Checkpoint**: User Stories 1 and 2 complete — playback highlights and automatically scrolls to each section hands-free.
 
@@ -81,8 +81,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [P] [US3] Add gesture detection listeners (`wheel`, `touchstart`, `pointerdown`) and 3-second debounce timer in `src/presentation/hooks/use-playback-sync.ts` to suspend auto-follow during manual scrolling
-- [ ] T012 [US3] Implement bidirectional click-to-seek in `src/presentation/components/RehearsalPlayer.tsx` so clicking section badges or chord sheet headers immediately seeks player and resets manual override
+- [x] T011 [P] [US3] Add gesture detection listeners (`wheel`, `touchstart`, `pointerdown`) and 3-second debounce timer in `src/presentation/hooks/use-playback-sync.ts` to suspend auto-follow during manual scrolling
+- [x] T012 [US3] Implement bidirectional click-to-seek in `src/presentation/components/RehearsalPlayer.tsx` so clicking section badges or chord sheet headers immediately seeks player and resets manual override
 
 **Checkpoint**: All user stories complete — full bidirectional live playback sync with gesture-resilient auto-scrolling.
 
@@ -92,10 +92,10 @@
 
 **Purpose**: Architecture validation, code formatting, comprehensive test execution, and production build verification.
 
-- [ ] T013 [P] Run architecture check `bun run check:arch` and verify zero boundary violations
-- [ ] T014 [P] Run linter and formatting check `bun run check` across all modified files
-- [ ] T015 Run full automated test suite `bun test` verifying 100% tests passing including new unit tests
-- [ ] T016 Execute quickstart scenarios in `specs/003-rehearsal-live-sync/quickstart.md` and verify production build with `bun run build`
+- [x] T013 [P] Run architecture check `bun run check:arch` and verify zero boundary violations
+- [x] T014 [P] Run linter and formatting check `bun run check` across all modified files
+- [x] T015 Run full automated test suite `bun test` verifying 100% tests passing including new unit tests
+- [x] T016 Execute quickstart scenarios in `specs/003-rehearsal-live-sync/quickstart.md` and verify production build with `bun run build`
 
 ---
 
@@ -122,12 +122,14 @@
 ## Implementation Strategy
 
 ### MVP First (User Story 1 Only)
+
 1. Complete Phase 1: Setup (`src/core/domain/rehearsal-sync.ts`).
 2. Complete Phase 2: Foundational (`findActiveSection` + tests).
 3. Complete Phase 3: User Story 1 (`usePlaybackSync` + highlight in `ChordSheet` and `RehearsalPlayer`).
 4. **STOP and VALIDATE**: Play video, verify section highlights change in real time. (MVP delivered!)
 
 ### Incremental Delivery
+
 - Add User Story 2: Auto-follow viewport scrolling for hands-free rehearsal on music stands.
 - Add User Story 3: Gesture override buffer (3s) and bidirectional click-to-seek.
 - Run Phase 6 Quality Gates.

@@ -17,14 +17,14 @@ export interface RehearsalSection {
 
 /**
  * Pure deterministic resolution of active musical section based on playback timestamp.
- * 
+ *
  * @param sections - Array of section timestamp markers for the song.
  * @param currentTimeSeconds - Current audio/video playback offset in seconds.
  * @returns The active section, or null if timestamp is before the first section or no sections exist.
  */
 export function findActiveSection(
   sections: readonly RehearsalSection[],
-  currentTimeSeconds: number
+  currentTimeSeconds: number,
 ): RehearsalSection | null;
 
 /**
@@ -71,7 +71,9 @@ export interface UsePlaybackSyncReturn {
   seekToSection: (section: RehearsalSection) => void;
 }
 
-export function usePlaybackSync(options: UsePlaybackSyncOptions): UsePlaybackSyncReturn;
+export function usePlaybackSync(
+  options: UsePlaybackSyncOptions,
+): UsePlaybackSyncReturn;
 ```
 
 ---
@@ -103,7 +105,7 @@ Addition to `StageUtilityBarProps`:
 ```typescript
 export interface StageUtilityBarProps {
   // Existing transposition & font scaling props...
-  
+
   /** Auto-Follow Active Section feature */
   autoFollowActive?: boolean;
   onToggleAutoFollow?: () => void;

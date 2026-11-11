@@ -11,6 +11,7 @@ import { Button } from "@/presentation/components/ui/button";
 import {
   Card,
   CardContent,
+  CardHeader,
   CardTitle,
 } from "@/presentation/components/ui/card";
 import { getRequestEnv } from "@/presentation/get-request-env";
@@ -49,36 +50,30 @@ export default async function SongDetailPage({
   });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       {/* Breadcrumb Navigation */}
       <nav
         aria-label="Breadcrumb"
-        className="text-xs text-muted-foreground flex items-center gap-2"
+        className="text-xs text-muted-foreground flex items-center gap-1.5"
       >
         <Link href="/" className="hover:text-foreground transition-colors">
-          Catálogo de Alabanza
+          Catálogo
         </Link>
-        <span>/</span>
+        <span className="text-muted-foreground/40">/</span>
         <span className="text-foreground font-medium truncate max-w-xs">
           {song.title}
         </span>
       </nav>
 
       {/* Arrangement Hero Banner */}
-      <Card
-        variant="bordered"
-        className="p-6 sm:p-8 bg-card border border-border shadow-sm"
-      >
+      <div className="relative overflow-hidden rounded-2xl bg-card border border-border/80 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Arreglo de Alabanza
-              </span>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                 {song.title}
               </h1>
-              <p className="text-base sm:text-lg text-muted-foreground font-medium mt-0.5">
+              <p className="text-base text-muted-foreground font-medium mt-1">
                 {song.artist}
               </p>
             </div>
@@ -94,20 +89,33 @@ export default async function SongDetailPage({
 
               {song.practiceKey ? (
                 <Badge variant="keyPractice" size="md">
-                  Ensayo: <strong className="ml-1">{song.practiceKey}</strong>
+                  Ensayo:{" "}
+                  <strong className="ml-1 text-primary">
+                    {song.practiceKey}
+                  </strong>
                 </Badge>
               ) : null}
 
               {song.bpm ? (
-                <Badge variant="secondary" size="md">
-                  ⚡ {song.bpm} BPM
-                </Badge>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-secondary text-muted-foreground border border-border/60">
+                  <svg
+                    className="w-3.5 h-3.5 opacity-70"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 2v20M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h20" />
+                  </svg>
+                  <span>{song.bpm} BPM</span>
+                </span>
               ) : null}
 
               {song.timeSignature ? (
-                <Badge variant="secondary" size="md">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-secondary text-muted-foreground border border-border/60">
                   Compás {song.timeSignature}
-                </Badge>
+                </span>
               ) : null}
 
               {songLabels.map((l) => (
@@ -117,96 +125,153 @@ export default async function SongDetailPage({
           </div>
 
           {/* Action Toolbar */}
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <Link href={`/songs/${song.id}/practice`}>
-              <Button variant="primary" size="md" className="gap-2 shadow-md">
-                <span>▶</span>
+              <Button
+                variant="primary"
+                size="md"
+                className="gap-2 shadow-sm font-semibold"
+              >
+                <svg
+                  className="w-4 h-4 fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
                 <span>Abrir Ensayo</span>
               </Button>
             </Link>
 
             {session.role === "ADMIN" ? (
               <Link href={`/songs/${song.id}/edit`}>
-                <Button variant="secondary" size="md">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="gap-1.5 font-medium"
+                >
+                  <svg
+                    className="w-3.5 h-3.5 opacity-70"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
                   <span>Editar</span>
                 </Button>
               </Link>
             ) : null}
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Main Content Split: Role Matrix & Rehearsal Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Role Matrix (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          <RoleMatrix
-            songId={song.id}
-            roles={assignments}
-            members={users}
-            isAdmin={session.role === "ADMIN"}
-          />
-        </div>
+      {/* Primary Section: Role Matrix Table (Full-Width to eliminate horizontal scrollbar) */}
+      <section aria-labelledby="role-matrix-title">
+        <RoleMatrix
+          songId={song.id}
+          roles={assignments}
+          members={users}
+          isAdmin={session.role === "ADMIN"}
+        />
+      </section>
 
-        {/* Right Column: Timestamps & Quick Chord Preview (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Section Timestamps Card */}
-          {song.sectionTimestamps && song.sectionTimestamps.length > 0 ? (
-            <Card variant="bordered" className="p-5 space-y-3">
-              <CardTitle
-                as="h3"
-                className="text-sm font-semibold text-foreground uppercase tracking-wider"
-              >
-                Marcadores de Sección ({song.sectionTimestamps.length})
-              </CardTitle>
-              <CardContent className="p-0 pt-2">
-                <div className="flex flex-wrap gap-2">
-                  {song.sectionTimestamps.map((st) => (
-                    <Badge
-                      key={`${st.label}-${st.startSeconds}`}
-                      variant="secondary"
-                      size="md"
-                      className="gap-2 px-3 py-1 font-medium"
-                    >
-                      <span>{st.label}</span>
-                      <span className="text-[11px] font-mono text-muted-foreground opacity-80">
-                        {Math.floor(st.startSeconds / 60)}:
-                        {String(Math.floor(st.startSeconds % 60)).padStart(
-                          2,
-                          "0",
-                        )}
-                      </span>
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {/* Quick Chord Chart Preview Card */}
-          <Card variant="bordered" className="p-5 space-y-4">
+      {/* Secondary Section: Section Markers & Quick Chord Preview (Balanced 2-Column Split) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Section Timestamps Card */}
+        <Card variant="bordered" className="p-5 space-y-4">
+          <CardHeader className="p-0 pb-1">
             <div className="flex items-center justify-between">
               <CardTitle
-                as="h3"
-                className="text-sm font-semibold text-foreground uppercase tracking-wider"
+                as="h2"
+                className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2"
               >
-                Vista Previa de Acordes
+                <svg
+                  className="w-4 h-4 text-primary opacity-80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>Marcadores de Sección</span>
+              </CardTitle>
+              <span className="text-xs font-medium text-muted-foreground">
+                {song.sectionTimestamps?.length ?? 0} partes
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {song.sectionTimestamps && song.sectionTimestamps.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {song.sectionTimestamps.map((st) => (
+                  <div
+                    key={`${st.label}-${st.startSeconds}`}
+                    className="flex items-center justify-between px-3 py-2 rounded-lg bg-secondary/50 border border-border/70 hover:border-primary/40 transition-colors"
+                  >
+                    <span className="text-xs font-semibold text-foreground">
+                      {st.label}
+                    </span>
+                    <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded border border-border/50">
+                      {Math.floor(st.startSeconds / 60)}:
+                      {String(Math.floor(st.startSeconds % 60)).padStart(
+                        2,
+                        "0",
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground py-4 text-center">
+                No hay marcadores de sección definidos para esta canción.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Chord Chart Preview Card */}
+        <Card variant="bordered" className="p-5 space-y-4">
+          <CardHeader className="p-0 pb-1">
+            <div className="flex items-center justify-between">
+              <CardTitle
+                as="h2"
+                className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2"
+              >
+                <svg
+                  className="w-4 h-4 text-chord-accent opacity-80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+                <span>Vista Previa de Acordes</span>
               </CardTitle>
               <Link
                 href={`/songs/${song.id}/practice`}
-                className="text-xs text-primary hover:underline font-semibold"
+                className="text-xs text-primary hover:underline font-semibold flex items-center gap-1"
               >
-                Pantalla Completa →
+                <span>Pantalla Completa</span>
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
-
-            <CardContent className="p-0">
-              <div className="max-h-96 overflow-y-auto rounded-lg border border-border/60 bg-background/50 p-2">
-                <ChordSheet sheet={parsedSheet} fontSizeRem={0.95} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="max-h-80 overflow-y-auto rounded-lg border border-border/70 bg-background/60 p-3">
+              <ChordSheet sheet={parsedSheet} fontSizeRem={0.9} />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

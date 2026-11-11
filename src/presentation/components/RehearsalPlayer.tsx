@@ -7,6 +7,7 @@ import {
   transposeChordSheet,
 } from "@/core/domain/chordpro";
 import { useAutoScroll } from "@/presentation/hooks/use-auto-scroll";
+import { usePlaybackSync } from "@/presentation/hooks/use-playback-sync";
 import { useScreenWakeLock } from "@/presentation/hooks/use-screen-wake-lock";
 import { ChordSheet } from "./rehearsal/chord-sheet";
 import { StageUtilityBar } from "./rehearsal/stage-utility-bar";
@@ -81,7 +82,6 @@ export function RehearsalPlayer({
     b: null,
   });
   const [speed, setSpeed] = useState(1);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Initial semitone delta
@@ -94,6 +94,37 @@ export function RehearsalPlayer({
   // Screen Wake Lock & Auto Scroll Hooks
   const wakeLock = useScreenWakeLock(true);
   const autoScroll = useAutoScroll({ initialSpeed: 28 });
+
+  // Real-time Playback Synchronization Hook
+  const sync = usePlaybackSync({
+    sections,
+    playerRef,
+    loop,
+  });
+
+  // Auto-follow: smoothly scroll to active section element when section transitions
+  useEffect(() => {
+    if (!sync.activeSectionLabel || !sync.autoFollow || sync.isUserOverriding) {
+      return;
+    }
+
+    const container = autoScroll.scrollContainerRef.current;
+    if (!container) return;
+
+    const targetEl = container.querySelector<HTMLElement>(
+      `[data-section-title="${CSS.escape(sync.activeSectionLabel)}"]`,
+    );
+
+    if (targetEl) {
+      autoScroll.scrollToElement(targetEl);
+    }
+  }, [
+    sync.activeSectionLabel,
+    sync.autoFollow,
+    sync.isUserOverriding,
+    autoScroll.scrollToElement,
+    autoScroll.scrollContainerRef,
+  ]);
 
   // Parse and transpose ChordPro sheet
   const parsedSheet = useMemo(() => {
@@ -162,22 +193,8 @@ export function RehearsalPlayer({
       document.body.appendChild(script);
     }
 
-    const timer = setInterval(() => {
-      const { a, b } = loopRef.current;
-      const p = playerRef.current;
-      if (b === null || !p) return;
-      try {
-        if (p.getCurrentTime() >= b) {
-          p.seekTo(a, true);
-        }
-      } catch {
-        // Player not ready yet
-      }
-    }, 250);
-
     return () => {
       cancelled = true;
-      clearInterval(timer);
       try {
         playerRef.current?.destroy();
       } catch {
@@ -191,15 +208,6 @@ export function RehearsalPlayer({
     setSpeed(rate);
     try {
       playerRef.current?.setPlaybackRate(rate);
-    } catch {
-      // Ignore
-    }
-  }
-
-  function seek(seconds: number, label?: string) {
-    if (label) setActiveSection(label);
-    try {
-      playerRef.current?.seekTo(seconds, true);
     } catch {
       // Ignore
     }
@@ -235,6 +243,9 @@ export function RehearsalPlayer({
         onToggleAutoScroll={autoScroll.toggleScrolling}
         onSpeedChange={autoScroll.setSpeed}
         onResetToTop={autoScroll.resetToTop}
+        autoFollowActive={sync.autoFollow}
+        onToggleAutoFollow={() => sync.setAutoFollow((prev) => !prev)}
+        hasSections={sections.length > 0}
         wakeLockActive={wakeLock.isActive}
         wakeLockSupported={wakeLock.isSupported}
         onToggleWakeLock={() => {
@@ -347,20 +358,24 @@ export function RehearsalPlayer({
                 Saltar a Sección
               </span>
               <div className="flex flex-wrap gap-2">
-                {sections.map((s) => (
-                  <button
-                    key={`${s.label}-${s.startSeconds}`}
-                    type="button"
-                    onClick={() => seek(s.startSeconds, s.label)}
-                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all ${
-                      activeSection === s.label
-                        ? "bg-primary text-white border-primary shadow-xs"
-                        : "bg-secondary hover:bg-accent text-foreground border-border"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+                {sections.map((s) => {
+                  const isActive = sync.activeSectionLabel === s.label;
+                  return (
+                    <button
+                      key={`${s.label}-${s.startSeconds}`}
+                      type="button"
+                      onClick={() => sync.seekToSection(s.label)}
+                      className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all ${
+                        isActive
+                          ? "bg-primary text-white border-primary shadow-xs ring-2 ring-primary/40"
+                          : "bg-secondary hover:bg-accent text-foreground border-border"
+                      }`}
+                      aria-current={isActive ? "step" : undefined}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ) : null}
@@ -395,14 +410,10 @@ export function RehearsalPlayer({
           <ChordSheet
             sheet={transposedSheet}
             fontSizeRem={fontSizeRem}
-            activeSectionTitle={activeSection}
+            activeSectionTitle={sync.activeSectionLabel}
+            onUserScroll={sync.notifyUserGesture}
             onSectionClick={(title) => {
-              const matched = sections.find(
-                (s) => s.label.toLowerCase() === title.toLowerCase(),
-              );
-              if (matched) {
-                seek(matched.startSeconds, matched.label);
-              }
+              sync.seekToSection(title);
             }}
           />
         </div>

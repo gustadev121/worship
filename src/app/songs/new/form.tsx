@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useRef, useState } from "react";
+import type { ImportedSongMetadata } from "@/core/domain/chord-converter";
 import { parseChordPro } from "@/core/domain/chordpro";
 import { MUSICAL_KEYS } from "@/core/domain/keys";
 import type { SectionTimestamp } from "@/core/domain/song";
 import { normalizeYoutubeVideoId } from "@/core/domain/youtube";
+import { FileDropzone } from "@/presentation/components/rehearsal/file-dropzone";
+import { SmartPasteModal } from "@/presentation/components/rehearsal/smart-paste-modal";
 import { Badge } from "@/presentation/components/ui/badge";
 import { Button } from "@/presentation/components/ui/button";
 import {
@@ -78,6 +81,7 @@ export function SongForm({
   const [editorTab, setEditorTab] = useState<"split" | "edit" | "preview">(
     "split",
   );
+  const [isSmartPasteOpen, setIsSmartPasteOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Section Timestamps Builder Local State
@@ -94,6 +98,44 @@ export function SongForm({
     val: SongFormValue[K],
   ) {
     setValue((prev) => ({ ...prev, [key]: val }));
+  }
+
+  // Handle Drag & Drop File Import
+  function handleFileImported(metadata: ImportedSongMetadata) {
+    setValue((prev) => ({
+      ...prev,
+      title: metadata.title || prev.title,
+      artist: metadata.artist || prev.artist,
+      originalKey: metadata.originalKey || prev.originalKey,
+      bpm: metadata.bpm ? String(metadata.bpm) : prev.bpm,
+      timeSignature: metadata.timeSignature || prev.timeSignature,
+      lyricsAndChords: metadata.lyricsAndChords || prev.lyricsAndChords,
+      sectionTimestamps:
+        metadata.sectionTimestamps && metadata.sectionTimestamps.length > 0
+          ? metadata.sectionTimestamps
+          : prev.sectionTimestamps,
+    }));
+  }
+
+  // Handle Smart Paste Modal Apply
+  function handleSmartPasteApply(data: {
+    chordProText: string;
+    sectionTimestamps: SectionTimestamp[];
+    detectedKey: string | null;
+  }) {
+    setValue((prev) => ({
+      ...prev,
+      lyricsAndChords: data.chordProText,
+      originalKey:
+        (!prev.originalKey || prev.originalKey === "C major") &&
+        data.detectedKey
+          ? `${data.detectedKey} major`
+          : prev.originalKey,
+      sectionTimestamps:
+        data.sectionTimestamps && data.sectionTimestamps.length > 0
+          ? data.sectionTimestamps
+          : prev.sectionTimestamps,
+    }));
   }
 
   // Extract YouTube ID for live preview thumbnail
@@ -760,6 +802,14 @@ export function SongForm({
           <div
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
+            {/* File Drag & Drop Importer */}
+            <FileDropzone
+              onFileImported={handleFileImported}
+              hasExistingContent={Boolean(
+                value.lyricsAndChords.trim() || value.title.trim(),
+              )}
+            />
+
             {/* Quick Insertion Toolbar */}
             {editorTab !== "preview" && (
               <div
@@ -774,6 +824,37 @@ export function SongForm({
                   border: "1px solid var(--border)",
                 }}
               >
+                {/* Smart Paste Action */}
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsSmartPasteOpen(true)}
+                  style={{
+                    minHeight: "32px",
+                    padding: "0.15rem 0.65rem",
+                    fontWeight: 600,
+                    marginRight: "0.5rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                  }}
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                  <span>Smart Paste (Acordes sobre letra)</span>
+                </Button>
+
                 <span
                   style={{
                     fontSize: "0.75rem",
@@ -1204,6 +1285,14 @@ export function SongForm({
           {mode === "create" ? "Crear Canción" : "Guardar Cambios"}
         </Button>
       </div>
+
+      {/* Smart Paste Interactive Conversion Modal */}
+      <SmartPasteModal
+        isOpen={isSmartPasteOpen}
+        onClose={() => setIsSmartPasteOpen(false)}
+        onApply={handleSmartPasteApply}
+        currentKey={value.originalKey}
+      />
     </form>
   );
 }
